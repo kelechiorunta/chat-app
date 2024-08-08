@@ -31,3 +31,23 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .container {
+    overflow: hidden;
+    /* background-color: blue; */
+  }
+  
+  .slideIn {
+    animation: slideIn 1.5s forwards;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0%);
+    }
+  }
+}

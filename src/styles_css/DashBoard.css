@@ -1,0 +1,19 @@
+/* styles/Dashboard.module.css */
+.container {
+    overflow: hidden;
+    /* background-color: blue; */
+  }
+  
+  .slideIn {
+    animation: slideIn 2.5s forwards infinite;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(-10%);
+    }
+  }
+  
