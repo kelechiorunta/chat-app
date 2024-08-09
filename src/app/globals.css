@@ -33,6 +33,11 @@ body {
 }
 
 @layer components {
+
+  *, *::after, *::before{
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
   .container {
     overflow: hidden;
     /* background-color: blue; */
@@ -41,13 +46,97 @@ body {
   .slideIn {
     animation: slideIn 1.5s forwards;
   }
+
+  .loggedIn {
+    animation: loggedIn 1.5s forwards;
+  }
+
+  .isSignedOut {
+    animation: signedOut 1.5s forwards;
+  }
+
+  .rotateIn{
+    animation: rotateIn 2.5s forwards;
+  }
+
+  .imageIn{
+    transform: scale(1);
+    transition: transform 1s ease;
+    /* animation: rotateIn 2.5s forwards; */
+    &:hover{
+      transform: scale(1.3);
+      transition: transform 1s ease;
+    }
+  }
+
+  .scaleIn{
+    animation: scaleIn 1.5s forwards;
+  }
   
   @keyframes slideIn {
     from {
+      opacity: 0;
       transform: translateX(-100%);
     }
     to {
+      opacity: 1;
       transform: translateX(0%);
     }
+  }
+}
+
+@keyframes loggedIn {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes signedOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    /* transform: rotate(0deg); */
+    transform: translateZ(0) 
+  }
+  to {
+    opacity: 0;
+    transform: scale(0);
+    /* transform: rotate(360deg); */
+    transform: translateZ(-50px)
+  }
+}
+
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+    transform: rotateX(0deg);
+    transform: translateY(-100%) 
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    transform: rotateX(360deg);
+    transform: translateY(0)
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+    /* transform: rotate(0deg); */
+    transform: translateX(100%) 
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    /* transform: rotate(360deg); */
+    transform: translateX(0)
   }
 }

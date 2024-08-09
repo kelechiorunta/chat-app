@@ -1,15 +1,26 @@
 // components/Sidebar.js
 'use client'
-import { useState, memo } from 'react';
-import { FaUserEdit, FaUsers, FaUserFriends, FaSignOutAlt } from 'react-icons/fa';
+import { useState, useTransition, memo } from 'react';
+import { FaUserEdit, FaUsers, FaUserFriends, FaSignOutAlt, FaSpaceShuttle } from 'react-icons/fa';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-const Sidebar = ({ onSelectTab }) => {
+const Sidebar = ({timerId_proj, timerId_login, onSelectTab,}) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
+  const [isPending, startTransition] = useTransition()
 
   const handleSignOut = async () => {
-    await signOut(auth);
+    startTransition(async() => {
+      try{
+        await signOut(auth);
+      }
+      catch(err){
+        console.error(err.message, "Unable to sign out")
+      }
+    })
   };
 
   const handleTabClick = (tab) => {
@@ -18,10 +29,11 @@ const Sidebar = ({ onSelectTab }) => {
   };
 
   return (
-    <div className="w-1/4 h-full bg-gray-800 text-white p-4 flex flex-col justify-between">
-      <div>
+    <div className="w-1/4 h-full bg-gray-800 text-white p-4
+     flex flex-col justify-between xsm:max-lg:w-full">
+      <div className='w-full xsm:max-lg:w-full'>
         <h2 className="text-2xl mb-4">Dashboard</h2>
-        <ul>
+        <ul className='w-full'>
           <li
             className={`cursor-pointer p-2 flex items-center ${activeTab === 'profile' && 'bg-gray-700'}`}
             onClick={() => handleTabClick('profile')}
@@ -43,6 +55,15 @@ const Sidebar = ({ onSelectTab }) => {
             <FaUsers fill='white' className="inline-block mr-2" />
             Create Group Chats
           </li>
+          <li
+            className={`cursor-pointer p-2 flex items-center`} //${activeTab === 'profile' && 'bg-gray-700'}`}
+            // onClick={() => handleTabClick('profile')}
+          >
+            <FaSpaceShuttle className="inline-block mr-2" />
+            {/* Proj */}
+            <Link className='text-white' href={`/proj/2`}>About Developer</Link>
+          </li>
+         
         </ul>
       </div>
       <button
@@ -50,7 +71,7 @@ const Sidebar = ({ onSelectTab }) => {
         onClick={handleSignOut}
       >
         <FaSignOutAlt fill='white' className="inline-block mr-2" />
-        Sign Out
+        {isPending? <FaSpinner fill='white' size={20} className='animate-spin mx-auto'/> : 'Sign Out'}
       </button>
     </div>
   );

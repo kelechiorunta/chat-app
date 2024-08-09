@@ -1,9 +1,10 @@
 // hooks/useAuth.js
 import { useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/app/firebase/config';
+import { onAuthStateChanged, getAuth } from 'firebase/auth';
+import { auth, app } from '@/app/firebase/config';
 
 const useAuth = () => {
+  const getUser = getAuth(app)
   const [activeuser, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -17,6 +18,28 @@ const useAuth = () => {
   }, []);
 
   return { activeuser, loading };
+
+
 };
 
+var newuser = []
+
+export async function getActiveUser(){
+  
+  const auth = getAuth(app)
+  onAuthStateChanged(auth, (currentUser) =>{
+    if (currentUser){
+      newuser.push(currentUser)}
+    else{
+      // alert('No user')
+      newuser = []
+    }//activeuser}
+    
+  })
+  return newuser
+  
+  
+}
+
 export default useAuth;
+

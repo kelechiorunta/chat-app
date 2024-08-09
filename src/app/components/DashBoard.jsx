@@ -2,10 +2,10 @@
 'use client'
 
 // pages/dashboard.js
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../components/Sidebar';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase/config';
 import { collection, onSnapshot } from  'firebase/firestore'
 import LoadingDots from './LoadingDots';
@@ -15,11 +15,14 @@ import ChatInput from './ChatInput';
 import Profile from './Profile';
 import Connects from './Connects';
 import GroupChats from './GroupChats';
+import Link from 'next/link';
+import ChatHeader from './ChatHeader';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const router = useRouter();
-//   const auth = getAuth(app)
+  const [isPendingOut, startTransitionOut] = useTransition()
+  const [isSignedOut, setIsSignedOut] = useState(false)  
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -28,12 +31,32 @@ const Dashboard = () => {
 
   const { activeuser, loading } = useAuth();
 
+  var timerId_login, timerId_proj;
+
+//   const handleSignOut = () => {
+//     startTransitionOut(async() => {
+//       try{
+//         setIsSignedOut(true)
+//         // clearTimeout(timerId_proj && timerId_proj)
+//         // clearTimeout(timerId_login && timerId_login)
+//         await signOut(auth);
+//         // router.push('/login')
+//       }
+//       catch(err){
+//         console.error(err.message, "Unable to sign out")
+//       }
+//     })
+//   };
+
   useEffect(() => {
+    
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (!user && !loading && !activeuser) {
-        router.push('/login');
+        setIsSignedOut(true)
+        timerId_login = setTimeout(()=>window.location.href='/login', 1000);
       }else if (user) {
         setShowContent(true);
+        timerId_proj = setTimeout(()=>router.push('/proj/1'), 5000)
       }
     });
 
@@ -46,6 +69,8 @@ const Dashboard = () => {
     return () => {
       unsubscribeAuth();
       unsubscribeUsers();
+      clearTimeout(timerId_login)
+      clearTimeout(timerId_proj)
     };
   }, [activeuser, loading, router]);
 
@@ -101,15 +126,16 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className={`${isSignedOut && 'isSignedOut'}  flex h-screen`}>
     {showContent && 
-      <div className='w-full slideIn flex'>
-      <Sidebar users={users} onSelectUser={setSelectedUser} onSelectTab={setActiveTab} />
+      <div className='w-full slideIn flex xsm:max-lg:flex-col'>
+      <Sidebar timerId_login={timerId_login} timerId_proj={timerId_proj} users={users} onSelectUser={setSelectedUser} onSelectTab={setActiveTab} />
       
       <div className="flex-1 flex flex-col">
-      <div className="flex-1 p-4 overflow-auto">{renderContent()}</div>
+        <ChatHeader/>
+      <div className="flex-1 p-4  ">{renderContent()}</div>
          <ChatWindow messages={messages} />
-         <ChatInput onSendMessage={handleSendMessage} />
+         {(activeTab !== 'profile') && <ChatInput onSendMessage={handleSendMessage} />}
       </div>
       </div>
     }
