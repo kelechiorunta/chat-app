@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Photo from './Photo';
 import { FaArrowLeft, FaArrowRight, FaArrowCircleRight, FaArrowAltCircleLeft, FaFastBackward, FaFastForward } from 'react-icons/fa'
 import Image from 'next/image';
+// import { motion } from 'framer-motion';
+import { testimonials } from '../@bio/(.)proj/page';
 import { photos } from '../../../public/photos/photos';
-import { testimonials } from '../@bio/(.)proj/[...id]/page';
 
 export default function ModalSlider({slides, children}) {
 

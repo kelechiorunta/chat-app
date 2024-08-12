@@ -1,3 +1,4 @@
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -6,6 +7,8 @@ import { motion } from 'framer-motion'
 export default function Photo({picture, testimonial}) {
   return (
     <div className='w-full mx-auto shadow-md rounded flex flex-col items-start p-8 xsm:max-[400px]:w-auto'>
+        { (picture && testimonial)?
+        <>
         <ul className='flex  justify-start items-start flex-wrap gap-x-2'>
           {picture && picture.pic.map((i, index)=> 
           <div className='overflow-hidden rounded-full border-4 border-gray-500 w-[100px] h-[100px] '>
@@ -17,7 +20,7 @@ export default function Photo({picture, testimonial}) {
           </Link>
           </div>)}
         </ul>
-        <p className='text-left t<ext-[16px] flex flex-col py-4'>{testimonial.topic} <motion.small>{testimonial && testimonial.message
+        <p className='text-left t<ext-[16px] flex flex-col py-4'>{testimonial && testimonial.topic} <motion.small>{testimonial && testimonial.message
          || <motion.ul 
           initial='hidden'
           animate='visible'
@@ -41,8 +44,11 @@ export default function Photo({picture, testimonial}) {
               <Link href={'/'}>{i}</Link>
            </motion.li>
            )})}</motion.ul>}</motion.small></p>
-        <ul className='text-left text-[16px] flex flex-col'>LINKS {testimonial && testimonial.links.map(i=>{return <Link href={`${i}`}><small>{i}</small></Link> })}
-         || {testimonial.videos.map(v=>{return <video className="h-[198px] object-cover " src={v} autoPlay loop playsInline muted></video>})}</ul>
+        <ul className='text-left text-[16px] flex flex-col'>LINKS {testimonial && testimonial.links.map(i=>{return <Link href={`${i}`}><small>{i}</small></Link> })}</ul>
+        </>
+        : <h1>Nothing</h1>
+        }
+         {/* || {testimonial && testimonial.videos.map(v=>{return <video className="h-[198px] object-cover " src={v} autoPlay loop playsInline muted></video>})}</ul> */}
     </div>
   )
 }

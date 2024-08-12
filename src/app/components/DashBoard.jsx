@@ -2,12 +2,12 @@
 'use client'
 
 // pages/dashboard.js
-import { useEffect, useState, useCallback, useTransition } from 'react';
+import { useEffect, useState, useCallback, useTransition, useContext } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '../components/Sidebar';
+import Sidebar from './Sidebar';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase/config';
-import { collection, onSnapshot } from  'firebase/firestore'
+import { collection, onSnapshot, doc } from  'firebase/firestore'
 import LoadingDots from './LoadingDots';
 import useAuth from '@/custom_hooks/useAuth';
 import ChatWindow from './ChatWindow';
@@ -17,46 +17,37 @@ import Connects from './Connects';
 import GroupChats from './GroupChats';
 import Link from 'next/link';
 import ChatHeader from './ChatHeader';
+import { authContext } from './AuthComponent';
+
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const router = useRouter();
   const [isPendingOut, startTransitionOut] = useTransition()
-  const [isSignedOut, setIsSignedOut] = useState(false)  
+  const [isSignedOut, setIsSignedOut] = useState(false) 
+  // const {isSignedOut, setIsSignedOut} = useContext(authContext)
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   
   const [showContent, setShowContent] = useState(false);
+  const [isAvail, setisAvail] = useState(false)
 
   const { activeuser, loading } = useAuth();
 
   var timerId_login, timerId_proj;
-
-//   const handleSignOut = () => {
-//     startTransitionOut(async() => {
-//       try{
-//         setIsSignedOut(true)
-//         // clearTimeout(timerId_proj && timerId_proj)
-//         // clearTimeout(timerId_login && timerId_login)
-//         await signOut(auth);
-//         // router.push('/login')
-//       }
-//       catch(err){
-//         console.error(err.message, "Unable to sign out")
-//       }
-//     })
-//   };
 
   useEffect(() => {
     
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (!user && !loading && !activeuser) {
         setIsSignedOut(true)
-        timerId_login = setTimeout(()=>window.location.href='/login', 1000);
+        // router.push('/login')
+         timerId_login = setTimeout(()=>window.location.href='/login', 1000);
       }else if (user) {
+        console.dir(activeuser)
         setShowContent(true);
-        timerId_proj = setTimeout(()=>router.push('/proj/1'), 5000)
+        // timerId_proj = setTimeout(()=>router.push('/proj'), 5000)
       }
     });
 
@@ -85,7 +76,47 @@ const Dashboard = () => {
 
       return () => unsubscribeMessages();
     }
-  }, [selectedUser]);
+
+    ///////////////////////////////////////////////////
+
+
+    const trackUserActivity = async() => {
+      try{
+        const usersCollection = doc(db, 'users', activeuser.uid);
+        const snapshot = await getDoc(usersCollection)
+        
+        // const usersData = (snapshot && snapshot.docs) && snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        
+        if (snapshot.exists()){
+          const unsubscribeUsers = onSnapshot(usersCollection, (snapshot) => {
+          const { isOnline } = snapshot.data().userdata
+          if (isOnline){
+            // setConnects(usersData);
+            setisAvail(true);
+            alert("User is online")
+          }else{
+            alert("User is offline")
+
+          }
+        })
+      
+  
+        return () => {
+            unsubscribeUsers();
+            // unsub()
+        }
+      }
+      }
+      catch(err){
+        console.error(err.message, 'Failed to track Users')
+      }
+    }
+    
+ trackUserActivity()
+
+ ///////////////////////////////////////////////////////////
+
+  }, [selectedUser, isAvail]);
 
   const handleSendMessage = useCallback(async(message) => {
     if (selectedUser) {
@@ -112,16 +143,16 @@ const Dashboard = () => {
 //     };
 //   }, [router]);
 
-  const renderContent = () => {
+  const renderContent = ({activeuser}) => {
     switch (activeTab) {
       case 'profile':
-        return <Profile />;
+        return <Profile signedInUser={activeuser} activetab={activeTab} />;
       case 'connects':
         return <Connects />;
       case 'group':
         return <GroupChats />;
       default:
-        return <Profile />;
+        return <Profile signedInUser={activeuser} activetab={activeTab}/>;
     }
   };
 
@@ -133,7 +164,7 @@ const Dashboard = () => {
       
       <div className="flex-1 flex flex-col">
         <ChatHeader/>
-      <div className="flex-1 p-4  ">{renderContent()}</div>
+      <div className="flex-1 p-4 ">{renderContent({activeuser})}</div>
          <ChatWindow messages={messages} />
          {(activeTab !== 'profile') && <ChatInput onSendMessage={handleSendMessage} />}
       </div>

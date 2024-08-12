@@ -1,12 +1,10 @@
-
-// pages/index.js or any other component
 'use client'
 import { useState } from 'react';
 import Modal from '@/app/components/Modal';
 import { Gi3dGlasses } from 'react-icons/gi'
 import { FaCss3Alt, FaHtml5, FaJava, FaJs, FaNodeJs, FaPlus, FaReact } from 'react-icons/fa';
 import Photo from '@/app/components/Photo'
-import { photos } from '../../../../../public/photos/photos';
+import { photos } from '../../../../public/photos/photos';
 import { useRouter } from 'next/navigation';
 
 import { FaTruck, FaSuperpowers, FaUser } from 'react-icons/fa'
@@ -46,11 +44,8 @@ export const testimonials = [{id:1, message: `Hello, I'm Kelechi. I am an experi
                               icon: <FaTruck size={50} fill='white'/>},]
 
 
-const InterceptingPage = ({params}) => {
+const InterceptingPage = () => {
   const router = useRouter()
-  const {id} = params
-  const photo = photos.find((p)=>{return p.id == id})
-  const testimonial = testimonials.find((t)=>{return t.id == id})
 
   const [isModalOpen, setIsModalOpen] = useState(true);
 
@@ -59,17 +54,17 @@ const InterceptingPage = ({params}) => {
 
   return (
     <div className="flex items-center justify-center h-screen bg-transparent">
-      <button
+      {/* <button
         onClick={openModal}
         className="p-4 bg-blue-500 text-white rounded-lg flex items-center hover:bg-blue-600"
       >
         <FaPlus className="mr-2" />
         Open Modal
-      </button>
+      </button> */}
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
-        title="Modal Title"
+        title="ABOUT THE DEVELOPER"
         footer={
           <div className="flex justify-end">
             <button

@@ -1,10 +1,12 @@
 // pages/login.js
 'use client'
-import { useState, useTransition } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useContext, useState, useTransition } from 'react';
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { auth } from '../firebase/config';
+import { auth, db } from '../firebase/config';
 import { FaEnvelope, FaLock, FaSpinner } from 'react-icons/fa';
+import { doc, getDoc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { authContext } from './AuthComponent';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,14 +14,41 @@ const Login = () => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [loggedIn, setLoggedIn] = useState(false)
+  const signedOutContext = useContext(authContext)
+
+  const {isSignedOut, setIsSignedOut} = signedOutContext
 
   const handleLogin = async (e) => {
     e.preventDefault();
     startTransition(async() => {
         try {
+          if (auth){
             await signInWithEmailAndPassword(auth, email, password);
+            onAuthStateChanged(auth, async(user) => {
+              if (user){
+                const userRef = doc(db, 'users', user && user.uid)
+                const snapshot = await getDoc(userRef)
+                var id = user && user.uid
+                  // const unsub = onSnapshot(userRef, async(snapshot) => {
+                    if (snapshot.exists()){
+                      const { isOnline } = snapshot.data().userdata
+                      if (!isOnline){
+                        await setDoc(userRef, {userdata:{isOnline:true}}, {merge:true})
+                        alert(`${user.displayName||user.email} is now active`)
+                      }
+                        
+                        // return
+                      // }  
+                    }
+                  // })
+                  // return () => unsub()
+              }
+            })
             setLoggedIn(true)
             router.push('/dashboard');
+            setIsSignedOut(false)
+          }
+            
           } catch (error) {
             console.error('Error logging in:', error);
           }
