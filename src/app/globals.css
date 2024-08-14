@@ -38,6 +38,11 @@ body {
     transform-style: preserve-3d;
     perspective: 1000px;
   }
+
+  .styleConnect{
+    -webkit-text-stroke: 1px #3b82f6;
+    color: white;
+  }
   .container {
     overflow: hidden;
     /* background-color: blue; */
@@ -51,9 +56,9 @@ body {
     animation: loggedIn 1.5s forwards;
   }
 
-  /* .isSignedOut {
+  .isSignedOut {
     animation: signedOut 1.5s forwards;
-  } */
+  }
 
   .rotateIn{
     animation: rotateIn 2.5s forwards;

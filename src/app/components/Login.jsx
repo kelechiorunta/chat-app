@@ -56,7 +56,7 @@ const Login = () => {
   };
 
   return (
-    <div className={`${loggedIn && 'loggedIn'} flex justify-center items-center h-screen bg-gray-100`}>
+    <div className={`${loggedIn && 'loggedIn'} flex justify-center items-center w-screen h-max-screen h-screen bg-gray-100`}>
       <form
         onSubmit={handleLogin}
         className="w-full max-w-md p-8 bg-white rounded-lg shadow-md"

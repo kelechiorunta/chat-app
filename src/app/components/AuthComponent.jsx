@@ -1,25 +1,34 @@
 'use client'
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import React from 'react'
 import useAuth from "@/custom_hooks/useAuth";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged} from 'firebase/auth';
 import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
+// import useUsers from "../firebase/hook/useUsers";
 
 export const authContext = createContext(null)
 
 
 
+
 export default function AuthComponent({children}) {
+    
     const [isSignedOut, setIsSignedOut] = useState(false) 
     const { activeuser } = useAuth()
     const [isFetched, setIsFetched] = useState(false)
     const [active, setActive] = useState(null)
     const [photo, setPhoto] = useState(null)
     const [connects, setConnects] = useState([])
+    
+    
+
     useEffect(()=>{
         if (auth && db) {
+
+            
+
             onAuthStateChanged(auth, async(user) => {
                 if (user || activeuser){
                     setActive(user)
@@ -40,6 +49,8 @@ export default function AuthComponent({children}) {
                     setConnects(usersData);
                     });
 
+                    
+
                     return () => {
                         unsubscribeUsers();
                         unsub()
@@ -54,7 +65,7 @@ export default function AuthComponent({children}) {
             })
         }
         
-    }, [active, activeuser, auth, photo, connects])
+    }, [active, activeuser, auth, photo])
 
   return (
     <authContext.Provider value={{active, isSignedOut, setIsSignedOut, photo, activeuser, isFetched, setIsFetched}}>

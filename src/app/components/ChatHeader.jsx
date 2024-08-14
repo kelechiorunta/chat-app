@@ -8,37 +8,33 @@ import useAuth from '@/custom_hooks/useAuth'
 import { auth, db } from '../firebase/config'
 import { doc, getDoc } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
+import useUsers from '../firebase/hook/useUsers'
 
-export default function ChatHeader() {
+export default function ChatHeader({others, setOthers}) {
   // const { activeuser } = useAuth()
   const signedUserContext = useContext(authContext)
   const {active, photo} = signedUserContext
   const [photoPic, setPhoto] = useState(null)
+  const { users } = useUsers()
   
-  // useEffect(()=>{
-  //   const getActiveUser = async() => {
-  //     try{
-  //       const userRef = doc(db, 'users', active.uid)
-  //       const userSnapshot = await getDoc(userRef)
-  //       if (userSnapshot.exists()){
-  //         const data = userSnapshot.data()
-  //         const { userdata } = data
-  //         const { picture } = userdata
-  //         setPhoto(picture)
-  //       }
-  //     }
-  //     catch(err){
-  //       console.error('Unable to load user picture')
-  //     }
-  //   }
-  //   getActiveUser()
-  // }, [active, photo])
+  const handleSearch = (e) => {
+    const mappedUsers = users && users.map((user, index)=>(user.userdata))
+    const searchedUser = mappedUsers && mappedUsers.filter(user=>{
+      return user.name.toLowerCase().includes(e.target.value.toLowerCase())
+    })
+    setOthers(searchedUser)
+  }
+
   return (
-    <header className='bg-slate-700 text-white w-full p-4 sticky top-0'>
+    <header className='bg-slate-700 text-black w-full p-4 sticky top-0 z-20'>
         <nav className='flex items-end justify-between xsm:max-[400px]:hidden'>
-            <Link href={'/dashboard'}>HOME</Link>
+            <Link className='text-white' href={'/dashboard'}>HOME</Link>
             <div className='flex gap-x-2 items-center' >
-                <input className='p-2 rounded ' type='search' name='search' placeholder='Search'/>
+                <input className='p-2 rounded'
+                       type='search' 
+                       onChange={handleSearch}
+                        name='search'
+                        placeholder='Search'/>
                 <button className='flex items-center justify-center'><FaSearch fill='white' size={20} /></button>
             </div>
             <button className='bg-slate-400 text-white rounded-md border-white shadow-md px-4 py-2'

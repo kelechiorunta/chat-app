@@ -1,6 +1,6 @@
 // components/Sidebar.js
 'use client'
-import { useState, useTransition, memo, useContext } from 'react';
+import { useState, useTransition, memo, useContext, useCallback } from 'react';
 import { FaUserEdit, FaUsers, FaUserFriends, FaSignOutAlt, FaSpaceShuttle, FaSpinner } from 'react-icons/fa';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../firebase/config';
@@ -10,13 +10,22 @@ import Link from 'next/link';
 import { authContext } from './AuthComponent';
 
 
-const Sidebar = ({timerId_proj, timerId_login, onSelectTab,}) => {
+const Sidebar = ({timerId_proj, timerId_login, onSelectTab, setAnimateUser, animate_user}) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
   const [isPending, startTransition] = useTransition()
   const signoutContext = useContext(authContext)
 
   const {isSignedOut, setIsSignedOut} = signoutContext
+
+  const animateUsers = useCallback(() => {
+      if (!animate_user && (activeTab!='connects')){
+        setAnimateUser(true)
+      }
+      // }else{
+        // setAnimateUser(false)
+      // }
+  }, [activeTab])
 
   const handleSignOut = async() => {
     startTransition(async() => {
@@ -36,6 +45,7 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab,}) => {
                       alert(`${user.displayName||user.email} is no longer active`)
                       
                       await signOut(auth);
+                      window.location.href='/login'
                       // router.push('/login')
               
                       }
@@ -72,21 +82,21 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab,}) => {
             onClick={() => handleTabClick('profile')}
           >
             <FaUserEdit className="inline-block mr-2" />
-            Update Profile
+            Profile
           </li>
           <li
             className={`cursor-pointer p-2 flex items-center ${activeTab === 'connects' && 'bg-gray-700'}`}
-            onClick={() => handleTabClick('connects')}
+            onClick={() => {handleTabClick('connects'); animateUsers()}}
           >
             <FaUserFriends className="inline-block mr-2" />
-            Connects/Other Users
+            Connects
           </li>
           <li
             className={`cursor-pointer p-2 flex items-center ${activeTab === 'group' && 'bg-gray-700'}`}
             onClick={() => handleTabClick('group')}
           >
             <FaUsers fill='white' className="inline-block mr-2" />
-            Create Group Chats
+            Group Chats
           </li>
           <li
             className={`cursor-pointer p-2 flex items-center`} //${activeTab === 'profile' && 'bg-gray-700'}`}
