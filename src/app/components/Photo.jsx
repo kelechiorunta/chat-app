@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 
 export default function Photo({picture, testimonial}) {
   return (
-    <div className='w-full mx-auto shadow-md rounded flex flex-col items-start p-8 xsm:max-[400px]:w-auto'>
+    <div className='w-full mx-auto shadow-md rounded flex flex-col items-start p-8 xsm:max-[400px]:w-auto xsm:max-md:w-4/5 xsm:max-md:mx-auto xsm:max-md:-ml-2'>
         { (picture && testimonial)?
         <>
         <ul className='flex  justify-start items-start flex-wrap gap-x-2'>

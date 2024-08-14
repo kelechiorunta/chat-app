@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase/config';
-import { collection, onSnapshot, doc, query, addDoc, orderBy } from  'firebase/firestore'
+import { collection, onSnapshot, doc, query, addDoc, orderBy, updateDoc, setDoc } from  'firebase/firestore'
 import LoadingDots from './LoadingDots';
 import useAuth from '@/custom_hooks/useAuth';
 import ChatWindow from './ChatWindow';
@@ -35,6 +35,7 @@ const Dashboard = () => {
   const [showContent, setShowContent] = useState(false);
   const [isAvail, setisAvail] = useState(false)
   const [animate_user, setAnimateUser] = useState(false)
+  const [notify, setNotify] = useState('')
 
   const { activeuser, loading } = useAuth();
 
@@ -85,24 +86,36 @@ const Dashboard = () => {
     };
   }, [activeuser, loading, router]);
 
-  useEffect(() => {
+  const revalidateChats = useCallback(() => {
     if (selectedUser) {
-      alert("There is a selected user")
+      alert(`Ready to connect with ${selectedUser && selectedUser.nickname}`)
       // [user.uid, recipient.id].sort().join('_');
-      const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser.userId}`].sort().join('_');
+      const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
       console.log(mergedIds)
     
       const messagesCollection = collection(db, 'chats', mergedIds, 'messages');
       const q = query(messagesCollection, orderBy('timestamp'));
       const unsubscribeMessages = onSnapshot(q, async(snapshot) => {
         if (snapshot){
-          const messagesData = snapshot.docs.map((doc) => doc.data());
+          // const messagesData = snapshot.docs.map((doc) => doc.data());
+          const messagesData = snapshot.docs.map((doc) => {
+            const messageData = doc.data();
+      
+            if (!messageData.isRead) {
+              // Update only the isRead property and merge with existing data
+              updateDoc(doc.ref, { isRead: true }, { merge: true });
+              // setNotify('No new messages')
+            }
+            return messageData;
+          });
+          
           setMessages(messagesData);
         }else{
           await addDoc(messagesCollection, {
             text: 'Hello',
             timestamp: new Date(),
             isSent: true,
+            istyping:istyping,
           });
         }
         
@@ -110,45 +123,11 @@ const Dashboard = () => {
 
       return () => unsubscribeMessages();
     }
+  }, [selectedUser])
 
-    ///////////////////////////////////////////////////
+  useEffect(() => {
 
-
-//     const trackUserActivity = async() => {
-//       try{
-//         const usersCollection = doc(db, 'users', activeuser.uid);
-//         const snapshot = await getDoc(usersCollection)
-        
-//         // const usersData = (snapshot && snapshot.docs) && snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        
-//         if (snapshot.exists()){
-//           const unsubscribeUsers = onSnapshot(usersCollection, (snapshot) => {
-//           const { isOnline } = snapshot.data().userdata
-//           if (isOnline){
-//             // setConnects(usersData);
-//             setisAvail(true);
-//             alert("User is online")
-//           }else{
-//             alert("User is offline")
-
-//           }
-//         })
-      
-  
-//         return () => {
-//             unsubscribeUsers();
-//             // unsub()
-//         }
-//       }
-//       }
-//       catch(err){
-//         console.error(err.message, 'Failed to track Users')
-//       }
-//     }
-    
-//  trackUserActivity()
-
- ///////////////////////////////////////////////////////////
+    revalidateChats()
 
   }, [selectedUser]);
 
@@ -162,6 +141,7 @@ const Dashboard = () => {
         text: message,
         timestamp: new Date(),
         isSent: true,
+        isRead: false
       });
     }
   }, [selectedUser]) 
@@ -185,7 +165,7 @@ const Dashboard = () => {
       case 'profile':
         return <Profile signedInUser={activeuser} activetab={activeTab} />;
       case 'connects':
-        return <Connects animate_user={animate_user} setSelectedUser={setSelectedUser} others={others && others} setOthers={setOthers} />;
+        return <Connects notify={notify} setNotify={setNotify} animate_user={animate_user} setSelectedUser={setSelectedUser} others={others && others} setOthers={setOthers} />;
       case 'group':
         return <GroupChats />;
       default:
@@ -202,8 +182,8 @@ const Dashboard = () => {
       <div className="flex-1 flex flex-col">
         <ChatHeader others={others} setOthers={setOthers}/>
       <div className="flex-1 p-4 ">{renderContent({activeuser})}</div>
-         <ChatWindow istyping={istyping} setIsTyping={setIsTyping} signedUser={activeuser} selectedUser={selectedUser} messages={messages} />
-         {(activeTab !== 'profile') && <ChatInput istyping={istyping} setIsTyping={setIsTyping} onSendMessage={handleSendMessage} />}
+         {(activeTab !== 'profile') && <ChatWindow istyping={istyping} setIsTyping={setIsTyping} signedUser={activeuser} selectedUser={selectedUser} messages={messages} />}
+         {(activeTab !== 'profile') && <ChatInput istyping={istyping} trackTyping={trackTyping} onSendMessage={handleSendMessage} />}
       </div>
       </div>
     }

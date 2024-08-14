@@ -8,21 +8,25 @@ import useAuth from '@/custom_hooks/useAuth'
 import { auth, db } from '../firebase/config'
 import { doc, getDoc } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
-import useUsers from '../firebase/hook/useUsers'
+// import useUsers from '../firebase/hook/useUsers'
 
 export default function ChatHeader({others, setOthers}) {
   // const { activeuser } = useAuth()
-  const signedUserContext = useContext(authContext)
-  const {active, photo} = signedUserContext
+  const { photo, users, onlineUsers  } = useContext(authContext)
+  // const { photo } = signedUserContext
   const [photoPic, setPhoto] = useState(null)
-  const { users } = useUsers()
+  // const { users } = useUsers()
   
   const handleSearch = (e) => {
-    const mappedUsers = users && users.map((user, index)=>(user.userdata))
-    const searchedUser = mappedUsers && mappedUsers.filter(user=>{
-      return user.name.toLowerCase().includes(e.target.value.toLowerCase())
+    const searchedUser = onlineUsers && onlineUsers.filter(user=>{
+      return user.name.toLowerCase().includes(e.target.value.toLowerCase()) 
     })
-    setOthers(searchedUser)
+    if (searchedUser && (e.target.value.length>0))
+      setOthers(searchedUser)
+    else{
+      setOthers(onlineUsers && onlineUsers) 
+    }
+    
   }
 
   return (
@@ -37,6 +41,7 @@ export default function ChatHeader({others, setOthers}) {
                         placeholder='Search'/>
                 <button className='flex items-center justify-center'><FaSearch fill='white' size={20} /></button>
             </div>
+            {console.log(others)}
             <button className='bg-slate-400 text-white rounded-md border-white shadow-md px-4 py-2'
             onClick={async()=>{await signOut(auth)}}>
               Logout

@@ -4,22 +4,24 @@ import { useCallback, useEffect, useState, useContext, memo } from 'react';
 import { FaUserAlt, FaFilter, FaCircle } from 'react-icons/fa';
 import useUsers from '../firebase/hook/useUsers';
 import Image from 'next/image';
-import { collection, getDoc, getDocs, onSnapshot, setDoc, where, query } from 'firebase/firestore';
+import { collection, getDoc, getDocs, onSnapshot, setDoc, where, query, orderBy, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { doc } from 'firebase/firestore';
 import { authContext } from './AuthComponent';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
-const Connects = ({others, setOthers, setSelectedUser, animate_user}) => {
+const Connects = ({others, setOthers, setSelectedUser, notify, setNotify, animate_user}) => {
   const userContext = useContext(authContext)
-  const {active} = userContext
+  const {active, setOnlineUsers} = userContext
   const { users } = useUsers();
   const [filter, setFilter] = useState('all');
   // const [others, setOthers] = useState([])
   const [connects, setConnects] = useState([])
   const [onlineId, setOnlineId] = useState(null)
   const [isActive, setisActive] = useState(false)
+  
+  // const [filteredUsers, setFilteredUsers] = useState([])
 
   const parentVariants = {
     hidden:{x:'-100%', opacity:0},
@@ -37,55 +39,91 @@ const Connects = ({others, setOthers, setSelectedUser, animate_user}) => {
       setOthers(others)
     }   
   }, [users])
+
+  const getUserName = (id) => {
+    const searchedUser = users && users.find(user=>{return user.id==id})
+    if (searchedUser){
+      const { userdata } = searchedUser
+      const { nickname, name } = userdata
+      return nickname || name
+    }
+  }
   
   const trackActivity = useCallback(async() => {
 
       console.log(active)
       console.log(users && users)
-      setOthers(users && users.map((user, index)=>(user.userdata)))
+      
 
     users && users.forEach(async(user) => {
+
+      setOthers(users && users.map((user, index)=>(user.userdata)))
+      /////////////////////////////////////////// To alert user of any unread messages
+      const mergedIds = [`${active && active.uid}`, `${user && user.id}`].sort().join('_');
+      console.log(mergedIds)
+    
+      const messagesCollection = collection(db, 'chats', mergedIds, 'messages');
+      const q = query(messagesCollection, orderBy('timestamp'));
+      const unsubscribeMessages = onSnapshot(q, async(snapshot) => {
+        if (snapshot){
+          // const messagesData = snapshot.docs.map((doc) => doc.data());
+          const messagesData = snapshot.docs.map((doc) => {
+            const messageData = doc.data();
+      
+            if (!messageData.isRead) {
+              // Update only the isRead property and merge with existing data
+              console.log(getUserName(messageData && messageData.senderId))
+              setNotify(`You have some unread message from ${getUserName(messageData && messageData.senderId)}`)
+              updateDoc(doc.ref, { isRead: true }, { merge: true });
+            }
+            // else{
+            //   setNotify('No new messages')
+            // }
+            return messageData;
+          
+          });
+          
+          // setMessages(messagesData);
+        }
+      })
+      ///////////////////////////////////////////
       const onlineRef = query(
         collection(db, 'users'),
-        where('userdata.isOnline', '==', true),
-        // where('userdata.userId', '==', user.id)
-
+        // where('userdata.isOnline', '==', true)
       );
       
-          const unsubscribeOnlineUsers = onSnapshot(onlineRef, async(snapshot) => {
+      const unsubscribeOnlineUsers = onSnapshot(onlineRef, async (snapshot) => {
+        if (snapshot) {
+          let onlineUsers = [];
+          snapshot.forEach((doc) => {
+            const userData = doc.data().userdata;
+            onlineUsers.push(userData);
+      
+            if (userData && userData.isOnline === true) {
+              setOnlineId(userData.userId);
+              setisActive(true);
+              updateDoc(doc.ref, { "userdata.isOnline": true }, { merge: true });
+            } 
+          });
+      
+          console.log(onlineUsers);
+          setOnlineUsers(onlineUsers.filter(user=>{return user.userId != (active && active.uid)}))
+          setOthers(onlineUsers.filter(user=>{return user.userId != (active && active.uid)}))
+        }
+      });
+    
         
-          if (snapshot){
-                // alert(`${user.id},'real user'`)
-                const onlineUsers = [];
-                const querySnapshot = await getDocs(onlineRef);
-  
-                querySnapshot.forEach((doc) => {
-                  onlineUsers.push(doc.data().userdata); // Extract the `userdata` field
-                });
-
-                console.log(onlineUsers)
-                if (onlineUsers && (onlineUsers.length>0)){
-                  onlineUsers.forEach(user => {
-                    setOnlineId(user.userId)
-                    setisActive(true)
-                    
-                  })
-                  // setOnlineId(onlineUsers[0].userId)
-                } else{
-                  // setOnlineId(null)
-                  //  setisActive(null)
-                }
-            
-            }
-        
-          })
+          
                return () => {
                     unsubscribeOnlineUsers();
+                    unsubscribeMessages();
                 }
 
 })
+
+
     
-  }, [users, onlineId, isActive])
+  }, [users, onlineId, isActive, auth])
 
   useEffect(()=>{
     fetchUsers()
@@ -95,9 +133,16 @@ const Connects = ({others, setOthers, setSelectedUser, animate_user}) => {
       trackActivity()
   }, [users, auth, isActive])
 
-  const filteredUsers = others && others.filter(user =>
-    filter === 'all' ? true : user.gender === filter
-  );
+  // const cacheFilteredUsers = useCallback(()=>{
+    const filteredUsers = others && others.filter(user =>
+      filter === 'all' ? true : user.gender === filter
+    
+   )
+  // }, [filteredUsers, others])
+
+  // useEffect(()=>{
+  //   cacheFilteredUsers()
+  // }, [filteredUsers]);
 
   const handleFilterChange = (gender) => {
     setFilter(gender);
@@ -128,7 +173,7 @@ const Connects = ({others, setOthers, setSelectedUser, animate_user}) => {
           }, hidden: { opacity: 0, x:20}, }}
       className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {console.log(filteredUsers)}
-        {filteredUsers.map(user => {
+        {filteredUsers && filteredUsers.map(user => {
         
         return ( 
           
@@ -143,7 +188,7 @@ const Connects = ({others, setOthers, setSelectedUser, animate_user}) => {
               visible: { opacity: 1, x:0},
               hidden: { opacity: 0, x:20},
             }}
-            onClick={()=>setSelectedUser(user)}
+            onClick={()=>{setSelectedUser(user); setNotify('No new messages');}}
             className='w-max h-max rounded-full border-white border-2 hover:cursor-pointer'>
             {/* // href={'/login'}> */}
               <img
@@ -160,17 +205,18 @@ const Connects = ({others, setOthers, setSelectedUser, animate_user}) => {
               <p className="text-sm text-gray-300 dark:text-gray-400">{user.nickname}</p>
               <div className="flex items-center gap-2">
                 
-                <FaCircle className={`w-3 h-3 ${(onlineId && ((user.userId == onlineId))  && isActive) ? 'text-green-500' : 'text-gray-400'}`} />
+                <FaCircle className={`w-3 h-3 ${onlineId && isActive && (user.isOnline == true) ? 'text-green-500' : 'text-gray-400'}`} />
                 
-                <p className={`text-sm ${(onlineId && ((user.userId==onlineId)) && isActive)?  'text-gray-100' :  'text-gray-500' } dark:text-gray-400`}>
-                  {(onlineId && ((user.userId==onlineId)))? 'Online' : 'Offline'}
+                <p className={`text-sm ${onlineId && isActive && (user.isOnline == true)?  'text-gray-100' :  'text-gray-500' } dark:text-gray-400`}>
+                  {onlineId && isActive && (user.isOnline == true)? 'Online' : 'Offline'}
                 </p>
-              
+                
               </div>
             </div>
           </motion.div>
-)})}
+)})}    
       </motion.div>}
+      {!notify.includes('undefined') && <small className='uppercase'>{notify && !notify.includes('undefined') && notify || 'No new messages'}</small>}
     </div>
   );
 };

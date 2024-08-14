@@ -50,9 +50,9 @@ export default function ModalSlider({slides, children}) {
   return (
     <div className='slideContainer overflow-hidden px-2 py-2 flex flex-col w-full items-center justify-start gap-x-2 bg-black text-white
             border border-b-amber-900 rounded-xl text-xl '>
-      <div className='flex relative mx-auto w-full'>
+      <div className='flex relative mx-auto w-full xsm:max-md:'>
         <nav className=' text-white flex justify-between z-20'>
-        <button className='rounded p-4 h-max my-auto bg-gray-600' onClick={moveSlideForward}><FaFastBackward size={20} fill='white'/></button>
+        <button className='rounded p-4 h-max my-auto bg-gray-600 xsm:max-md:hidden' onClick={moveSlideForward}><FaFastBackward size={20} fill='white'/></button>
             
         <div className="rounded-xl xsm:max-[400px]:max-w-[300px] xsm:max-sm:min-h-[300px] w-[500px] h-[400px]" style={{ overflow: 'hidden', position: 'relative'}}>
             <AnimatePresence initial={false} custom={direction}>
