@@ -66,7 +66,8 @@ const ChatWindow = ({signedUser, selectedUser, setSelectedUser }) => {
           acceptedIds = ([`${activeuser && activeuser.uid}`, `${sender && sender}`].sort().join('_'));
         }
         else{
-          setSelectedUser(onlineUsers[getSender(selectedUser && selectedUser.userId).length]); setPrev(onlineUsers[getSender(selectedUser && selectedUser.userId).length]); 
+          // setSelectedUser(onlineUsers[getSender(selectedUser && selectedUser.userId).length]); setPrev(onlineUsers[getSender(selectedUser && selectedUser.userId).length]); 
+          setSelectedUser(selectedUser && selectedUser)
           acceptedIds = ([`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_'));
         }
         
