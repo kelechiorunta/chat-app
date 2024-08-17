@@ -20,7 +20,9 @@ const ChatInput = ({ onSendMessage, istyping, trackTyping }) => {
         type="text"
         className="flex-1 p-2 border rounded xsm:max-[400px]:min-w-[300px] xsm:max-[400px]:p-2"
         value={message}
-        onChange={(e) => {setMessage(e.target.value); trackTyping()}}
+        // onKeyDown={()=>alert('Hello')}
+        
+        onChange={(e) => {setMessage(e.target.value); }}
         placeholder="Type a message"
       />
       <button type="submit" className="ml-2 p-2 bg-blue-500 text-white rounded hover:bg-blue-400">

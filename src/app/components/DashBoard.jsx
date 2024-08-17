@@ -27,10 +27,10 @@ const Dashboard = () => {
   const router = useRouter();
   const [isPendingOut, startTransitionOut] = useTransition()
   const [isSignedOut, setIsSignedOut] = useState(false) 
-  // const {isSignedOut, setIsSignedOut} = useContext(authContext)
+  const {session, setSession, setSender, prev, messages, setMessages} = useContext(authContext)
   const [clients, setClients] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState([]);
+  // const [messages, setMessages] = useState([]);
   const [others, setOthers] = useState([])
   const [showContent, setShowContent] = useState(false);
   const [isAvail, setisAvail] = useState(false)
@@ -86,12 +86,13 @@ const Dashboard = () => {
     };
   }, [activeuser, loading, router]);
 
-  const revalidateChats = useCallback(() => {
+  const revalidateChats = () => {
     if (selectedUser) {
-      alert(`Ready to connect with ${selectedUser && selectedUser.nickname}`)
+       alert(`Ready to connect with ${selectedUser && selectedUser.nickname}`)
       // [user.uid, recipient.id].sort().join('_');
       const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
       console.log(mergedIds)
+      setSession(mergedIds)
     
       const messagesCollection = collection(db, 'chats', mergedIds, 'messages');
       const q = query(messagesCollection, orderBy('timestamp'));
@@ -123,18 +124,20 @@ const Dashboard = () => {
 
       return () => unsubscribeMessages();
     }
-  }, [selectedUser])
+  }
 
   useEffect(() => {
 
     revalidateChats()
 
-  }, [selectedUser]);
+  }, [selectedUser, prev]);
 
-  const handleSendMessage = useCallback(async(message) => {
-    const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser.userId}`].sort().join('_');
+  const handleSendMessage = async(message) => {
+    const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
     if (selectedUser) {
+      // const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
       const messagesCollection = collection(db, 'chats', mergedIds, 'messages');
+      // setSender(activeuser && activeuser.uid)
       await addDoc(messagesCollection, {
         senderId: activeuser.uid,
         recipientId: selectedUser.userId,
@@ -144,7 +147,7 @@ const Dashboard = () => {
         isRead: false
       });
     }
-  }, [selectedUser]) 
+  }
 
   if (loading) return <LoadingDots/>;
 
@@ -165,7 +168,7 @@ const Dashboard = () => {
       case 'profile':
         return <Profile signedInUser={activeuser} activetab={activeTab} />;
       case 'connects':
-        return <Connects notify={notify} setNotify={setNotify} animate_user={animate_user} setSelectedUser={setSelectedUser} others={others && others} setOthers={setOthers} />;
+        return <Connects selectedUser={selectedUser} notify={notify} setNotify={setNotify} animate_user={animate_user} setSelectedUser={setSelectedUser} others={others && others} setOthers={setOthers} />;
       case 'group':
         return <GroupChats />;
       default:
@@ -182,7 +185,7 @@ const Dashboard = () => {
       <div className="flex-1 flex flex-col">
         <ChatHeader others={others} setOthers={setOthers}/>
       <div className="flex-1 p-4 ">{renderContent({activeuser})}</div>
-         {(activeTab !== 'profile') && <ChatWindow istyping={istyping} setIsTyping={setIsTyping} signedUser={activeuser} selectedUser={selectedUser} messages={messages} />}
+         {(activeTab !== 'profile') && <ChatWindow istyping={istyping} setIsTyping={setIsTyping} signedUser={activeuser} setSelectedUser={setSelectedUser} selectedUser={selectedUser} messages={messages} />}
          {(activeTab !== 'profile') && <ChatInput istyping={istyping} trackTyping={trackTyping} onSendMessage={handleSendMessage} />}
       </div>
       </div>

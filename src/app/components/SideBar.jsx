@@ -75,7 +75,7 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab, setAnimateUser, anim
     <div className="w-1/4 h-full bg-gray-800 text-white p-4
      flex flex-col justify-between xsm:max-lg:w-full">
       <div className='w-full xsm:max-lg:w-full'>
-        <h2 className="text-2xl mb-4">Dashboard</h2>
+        <h2 className="text-2xl mb-4">DASHBOARD</h2>
         <ul className='w-full'>
           <li
             className={`cursor-pointer p-2 flex items-center ${activeTab === 'profile' && 'bg-gray-700'}`}

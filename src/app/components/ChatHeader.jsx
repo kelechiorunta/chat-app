@@ -32,7 +32,7 @@ export default function ChatHeader({others, setOthers}) {
   return (
     <header className='bg-slate-700 text-black w-full p-4 sticky top-0 z-20'>
         <nav className='flex items-end justify-between xsm:max-[400px]:hidden'>
-            <Link className='text-white' href={'/dashboard'}>HOME</Link>
+            <Link className='text-white' href={'/animation'}>HOME</Link>
             <div className='flex gap-x-2 items-center' >
                 <input className='p-2 rounded'
                        type='search' 

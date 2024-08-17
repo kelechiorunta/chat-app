@@ -10,11 +10,13 @@ import { doc } from 'firebase/firestore';
 import { authContext } from './AuthComponent';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
-const Connects = ({others, setOthers, setSelectedUser, notify, setNotify, animate_user}) => {
+const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, setNotify, animate_user}) => {
   const userContext = useContext(authContext)
-  const {active, setOnlineUsers} = userContext
+  const {setPrev, active, setOnlineUsers, setSender, sender} = userContext
   const { users } = useUsers();
+  const router = useRouter();
   const [filter, setFilter] = useState('all');
   // const [others, setOthers] = useState([])
   const [connects, setConnects] = useState([])
@@ -73,6 +75,7 @@ const Connects = ({others, setOthers, setSelectedUser, notify, setNotify, animat
             if (!messageData.isRead) {
               // Update only the isRead property and merge with existing data
               console.log(getUserName(messageData && messageData.senderId))
+              setSender(messageData && messageData.senderId)
               setNotify(`You have some unread message from ${getUserName(messageData && messageData.senderId)}`)
               updateDoc(doc.ref, { isRead: true }, { merge: true });
             }
@@ -111,19 +114,13 @@ const Connects = ({others, setOthers, setSelectedUser, notify, setNotify, animat
           setOthers(onlineUsers.filter(user=>{return user.userId != (active && active.uid)}))
         }
       });
-    
-        
-          
                return () => {
                     unsubscribeOnlineUsers();
                     unsubscribeMessages();
                 }
 
 })
-
-
-    
-  }, [users, onlineId, isActive, auth])
+  }, [users, onlineId, isActive, auth, selectedUser, sender])
 
   useEffect(()=>{
     fetchUsers()
@@ -188,7 +185,7 @@ const Connects = ({others, setOthers, setSelectedUser, notify, setNotify, animat
               visible: { opacity: 1, x:0},
               hidden: { opacity: 0, x:20},
             }}
-            onClick={()=>{setSelectedUser(user); setNotify('No new messages');}}
+            onClick={()=>{setSelectedUser(user); setNotify('No new messages'); setPrev(user); router.prefetch(`/chatpage/${user.nickname}`)}}
             className='w-max h-max rounded-full border-white border-2 hover:cursor-pointer'>
             {/* // href={'/login'}> */}
               <img
