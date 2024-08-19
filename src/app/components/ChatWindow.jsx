@@ -7,12 +7,12 @@ import { motion } from 'framer-motion';
 import Modal from './Modal';
 import MyChatPage from '../@chatty/chatpage/[...id]/page';
 import DashboardLayout from '../dashboard/layout';
-import { collection, updateDoc, query, doc, onSnapshot, orderBy } from 'firebase/firestore';
+import { collection, updateDoc, query, doc, onSnapshot, orderBy, getDoc, increment, runTransaction, setDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 const ChatWindow = ({signedUser, selectedUser, setSelectedUser }) => {
   const {activeuser} = useAuth()
-  const {messages, setMessages, setmessages, prev, setPrev, onlineUsers, sender, setSender, session, setSession} = useContext(authContext)
+  const {setIgnoredUserId, messages, setMessages, unreadMsg, setUnreadMsg, setmessages, prev, setPrev, onlineUsers, sender, setSender, session, setSession} = useContext(authContext)
   const messagesEndRef = useRef(null);
   const [filteredMessages, setFilteredMessages] = useState(messages && messages)
   const [notification, setNotification] = useState(false)
@@ -56,55 +56,11 @@ const ChatWindow = ({signedUser, selectedUser, setSelectedUser }) => {
 
   const Notification = ({notifier, setSender, sender, getSender, getUserName, setSelectedUser, activeuser, onlineUsers, setNotification}) => {     
 
-    var acceptedIds;
-
-    const accept = (sender, isAccepted) => {
-      if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
-        console.log(sender)
-        if (isAccepted){
-          setSelectedUser(onlineUsers[getSender(sender && sender).length]); setPrev(onlineUsers[getSender(sender && sender).length]);
-          acceptedIds = ([`${activeuser && activeuser.uid}`, `${sender && sender}`].sort().join('_'));
-        }
-        else{
-          // setSelectedUser(onlineUsers[getSender(selectedUser && selectedUser.userId).length]); setPrev(onlineUsers[getSender(selectedUser && selectedUser.userId).length]); 
-          setSelectedUser(selectedUser && selectedUser)
-          acceptedIds = ([`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_'));
-        }
-        
-        const fallbackIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
-        console.log(acceptedIds)
-        const messagesCollection = collection(db, 'chats', acceptedIds, 'messages');
-        const q = query(messagesCollection, orderBy('timestamp'));
-        const unsubscribeMessages = onSnapshot(q, async(snapshot) => {
-        const data = []
-          if (snapshot){
-            const messagesData = snapshot.docs.map((doc) => {
-              const messageData = doc.data();
-              data.push(messageData)
-              if (!messageData.isOnline) {
-                // Update only the isRead property and merge with existing data
-                updateDoc(doc.ref, { isOnline: true }, { merge: true });
-              }
-              return messageData;
-            });
-
-            console.log(data)
-            setMessages(data)
-            setFilteredMessages(data);
-            
-          }
-
-          return () => unsubscribeMessages()
-
-        })
-      }
-    }
-/////////
 return(
   // <Modal isOpen={true}>
   <div className='bg-red-200 rounded-xl p-4 flex flex-col w-max text-black slideIn'>
   
-    {/* <h1 className=' bg-green text-blac'>{`${notifier && notifier} likes to code`}</h1> */}
+    {/* <h1 className=' bg-green text-black'>{`${notifier && notifier} likes to code`}</h1> */}
     
     <h1 className='italic py-2'>{`${getUserName(sender && sender)} is tying to connect `}</h1>
     {/* {accept_Sender()} */}
@@ -118,35 +74,173 @@ return(
   }
 
     
+  var acceptedIds;
 
-
-  // To notify chatters (current sender and reciever) of third party connect/sender  
-  const notifyChatters = (sender)=>{
+  const accept = async(sender, isAccepted) => {
     if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
-      //  alert('Hold on')
-       setNotification(true)
-      ///ALERT OF INCOMING THIRD PARTY SENDER
-    //    else {
-    //   setNotification(false)
-    // }
+      console.log(sender)
+      if (isAccepted===true){
+        setSelectedUser(onlineUsers[getSender(sender && sender).length]); setPrev(onlineUsers[getSender(sender && sender).length]);
+        acceptedIds = ([`${activeuser && activeuser.uid}`, `${sender && sender}`].sort().join('_'));
+        // setUnreadMsg(0)
+      }
+      else{
+        // setSelectedUser(onlineUsers[getSender(selectedUser && selectedUser.userId).length]); setPrev(onlineUsers[getSender(selectedUser && selectedUser.userId).length]); 
+        // setUnreadMsg(prev=>prev+1)
+        console.log(unreadMsg)
+        setIgnoredUserId(sender)
+        setSelectedUser(selectedUser && selectedUser);
+        acceptedIds = ([`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_'));
+        if (sender) {
+          const senderRef = doc(db, 'users', sender);
+          const activeRef = doc(db, 'users', activeuser && activeuser.uid);
+         
+          
+          // const snapshot = await getDoc(senderRef)
+          const snapshot = await getDoc(activeRef)
+          const notification = [];
+          if (snapshot.exists()){
+            const data = snapshot.data();
+            // const notificationSet = new Set();
+            // const { unRead } = data.userdata?.notification?.[0] 
+              const currentUnread = data.userdata?.unRead|| 0;
+              // const currentUnread = data.userdata?.notificationSet || 0;
+              
+              // console.log(user)
+              const updatedUnread = currentUnread + 1
+              notification.push(sender);
+
+              await updateDoc(senderRef, {
+                "userdata.UnRead": updatedUnread + 1,
+              }, { merge: true });
+
+              if (!data.userdata?.notification){
+                await updateDoc(activeRef, {
+                  "userdata.notification": notification,//Array.from(notificationSet).map(i=>({[sender]:i})),
+                }, { merge: true });
+              }
+
+              
+          }
+          // const unsub = onSnapshot(senderRef, async (snapshot) => {
+          //   if (snapshot.exists()) {
+          //     const data = snapshot.data();
+          //     const currentUnread = data.userdata?.UnRead || 0;
+          //     const updatedUnread = currentUnread + 1
+
+          //     // Increment UnRead by 1
+          //     await updateDoc(senderRef, {
+          //       "userdata.UnRead": updatedUnread,
+          //     }, { merge: true });
+          //     return
+          //   }
+          // });
+          
+          // return () => unsub();
+        }
+      }
+      
+      const fallbackIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
+      console.log(acceptedIds)
+      const messagesCollection = collection(db, 'chats', acceptedIds, 'messages');
+      const q = query(messagesCollection, orderBy('timestamp'));
+      const unsubscribeMessages = onSnapshot(q, async(snapshot) => {
+      const data = []
+        if (snapshot){
+          const messagesData = snapshot.docs.map((doc) => {
+            const messageData = doc.data();
+            data.push(messageData)
+            if (!messageData.isOnline) {
+              // Update only the isRead property and merge with existing data
+              updateDoc(doc.ref, { isOnline: true }, { merge: true });
+            }
+            return messageData;
+          });
+
+          console.log(data)
+          setMessages(data)
+          setFilteredMessages(data);
+          
+        }
+
+        return () => unsubscribeMessages()
+
+      })
+    }
   }
-}
+
+
+  const addNotification = async(sender) => {
+    var mergedIds = '';
+    var notification = [];
+    mergedIds = ([`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_'));
+        if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
+          const senderRef = doc(db, 'users', sender);
+          const activeRef = doc(db, 'users', activeuser && activeuser.uid);
+        const snapshot = await getDoc(activeRef);
+
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const notificationUnread = data.userdata?.notification || [];
+
+          let senderExists = false;
+
+          notificationUnread.forEach((n) => {
+            if (n.sender === sender) {
+              n.unRead += 1; // Increment unread count for existing sender
+              senderExists = true;
+            }
+          });
+
+          if (!senderExists) {
+            // If sender does not exist, add a new notification
+            notificationUnread.push({ sender, unRead: 1 });
+          }
+
+          const sendersSet = new Set(notificationUnread.map(JSON.stringify)); // Convert to strings to ensure uniqueness
+          const uniqueNotifications = Array.from(sendersSet).map(JSON.parse); // Convert back to objects
+
+          await updateDoc(activeRef, {
+            "userdata.notification": uniqueNotifications,
+          }, { merge: true });
+        }
+                      
+
+              
+            }
+  }
+  
+  // TO NOTIFY CHATTERS (current sender and reciever) OF INCOMING THIRD PARTY CONNECT/SENDER  
+  const notifyChatters = useCallback((sender)=>{
+    if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
+      //  accept(sender && sender, false); setNotification(false); setSender(null);
+       setMessages(filteredMessages)
+       setNotification(true)
+       addNotification(sender)
+      ///ALERT OF INCOMING THIRD PARTY SENDER
+  }
+}, [selectedUser, sender, messages])
   
   
   useEffect(()=>{
     if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
-      notifyChatters(sender)
+      // notifyChatters(sender)
+      // accept(sender && sender, false); setNotification(false); setSender(null);
+      setMessages(filteredMessages)
+      addNotification(sender)
     } 
     else{
+      accept(sender && sender, false); setNotification(false); setSender(null);
       if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
         setFilteredMessages(filteredMessages)
       }else{
         setFilteredMessages(messages)
       }
+      
      
     }
     console.log(filteredMessages)
-  },[notification, sender, selectedUser, messages, filteredMessages, activeuser])
+  },[notification, sender, selectedUser, messages, activeuser])
 
   return (
     <motion.div
@@ -174,11 +268,10 @@ return(
                           // setAcceptedIds={setAcceptedIds}
                           setNotification={setNotification}
                           setSender={setSender}
-                          getSender={getSender}
                           setSelectedUser={setSelectedUser}/>
                           
         :
-      filteredMessages && filteredMessages.map((msg, index) => (
+    filteredMessages && filteredMessages.map((msg, index) => (
       
         <motion.div
           variants={{

@@ -27,9 +27,9 @@ const Dashboard = () => {
   const router = useRouter();
   const [isPendingOut, startTransitionOut] = useTransition()
   const [isSignedOut, setIsSignedOut] = useState(false) 
-  const {session, setSession, setSender, prev, messages, setMessages} = useContext(authContext)
+  const {sender, selectedUser, setSelectedUser, session, setSession, setSender, prev, messages, setMessages} = useContext(authContext)
   const [clients, setClients] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  // const [selectedUser, setSelectedUser] = useState(null);
   // const [messages, setMessages] = useState([]);
   const [others, setOthers] = useState([])
   const [showContent, setShowContent] = useState(false);
@@ -133,9 +133,9 @@ const Dashboard = () => {
   }, [selectedUser, prev]);
 
   const handleSendMessage = async(message) => {
-    const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
-    if (selectedUser) {
-      // const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
+    // const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
+    if (selectedUser ) {
+      const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
       const messagesCollection = collection(db, 'chats', mergedIds, 'messages');
       // setSender(activeuser && activeuser.uid)
       await addDoc(messagesCollection, {

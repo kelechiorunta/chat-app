@@ -1,7 +1,7 @@
 // components/Connects.js
 'use client'
 import { useCallback, useEffect, useState, useContext, memo } from 'react';
-import { FaUserAlt, FaFilter, FaCircle } from 'react-icons/fa';
+import { FaUserAlt, FaFilter, FaCircle, FaEnvelope } from 'react-icons/fa';
 import useUsers from '../firebase/hook/useUsers';
 import Image from 'next/image';
 import { collection, getDoc, getDocs, onSnapshot, setDoc, where, query, orderBy, updateDoc } from 'firebase/firestore';
@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 
 const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, setNotify, animate_user}) => {
   const userContext = useContext(authContext)
-  const {setPrev, active, setOnlineUsers, setSender, sender} = userContext
+  const {setPrev, active, unreadMsg, ignoredUserId, setUnreadMsg, setOnlineUsers, setSender, sender} = userContext
   const { users } = useUsers();
   const router = useRouter();
   const [filter, setFilter] = useState('all');
@@ -22,6 +22,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
   const [connects, setConnects] = useState([])
   const [onlineId, setOnlineId] = useState(null)
   const [isActive, setisActive] = useState(false)
+  const [notifiers, setNotifiers] = useState(null)
   
   // const [filteredUsers, setFilteredUsers] = useState([])
 
@@ -55,6 +56,21 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
 
       console.log(active)
       console.log(users && users)
+
+      const activeUserRef = doc(db, 'users', active && active.uid)
+      const activeSnapshot = await getDoc(activeUserRef)
+      if (activeSnapshot){
+        const unsubNotifiers = onSnapshot(activeUserRef, (snapshot) => {
+          const data = snapshot.data();
+          console.log(data)
+          const { userdata } = data
+          const {notification} = userdata
+          setNotifiers(notification)
+        })
+
+       
+        
+      }
       
 
     users && users.forEach(async(user) => {
@@ -71,7 +87,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
           // const messagesData = snapshot.docs.map((doc) => doc.data());
           const messagesData = snapshot.docs.map((doc) => {
             const messageData = doc.data();
-      
+            
             if (!messageData.isRead) {
               // Update only the isRead property and merge with existing data
               console.log(getUserName(messageData && messageData.senderId))
@@ -79,9 +95,8 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
               setNotify(`You have some unread message from ${getUserName(messageData && messageData.senderId)}`)
               updateDoc(doc.ref, { isRead: true }, { merge: true });
             }
-            // else{
-            //   setNotify('No new messages')
-            // }
+            
+            // setUnreadMsg(0)
             return messageData;
           
           });
@@ -117,10 +132,10 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
                return () => {
                     unsubscribeOnlineUsers();
                     unsubscribeMessages();
-                }
+                    unsubNotifiers()           }
 
 })
-  }, [users, onlineId, isActive, auth, selectedUser, sender])
+  }, [users, onlineId, isActive, auth, selectedUser, sender,])
 
   useEffect(()=>{
     fetchUsers()
@@ -128,7 +143,21 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
 
   useEffect(()=>{  
       trackActivity()
-  }, [users, auth, isActive])
+  }, [users, auth, isActive,])
+
+  const getNotificationSenders = (user, arr_notifiers) => {
+     const currentNotification =  arr_notifiers && arr_notifiers.find(user_notifier=>{return user_notifier.sender == user.userId})
+        if (currentNotification){
+          return currentNotification.sender
+        }
+    }
+
+    const getNotificationUnRead = (user, arr_notifiers) => {
+      const currentNotification =  arr_notifiers && arr_notifiers.find(user_notifier=>{return user_notifier.sender == user.userId})
+         if (currentNotification){
+           return currentNotification.unRead
+         }
+     }
 
   // const cacheFilteredUsers = useCallback(()=>{
     const filteredUsers = others && others.filter(user =>
@@ -170,7 +199,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
           }, hidden: { opacity: 0, x:20}, }}
       className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {console.log(filteredUsers)}
-        {filteredUsers && filteredUsers.map(user => {
+        {filteredUsers && filteredUsers.map((user, index) => {
         
         return ( 
           
@@ -185,7 +214,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
               visible: { opacity: 1, x:0},
               hidden: { opacity: 0, x:20},
             }}
-            onClick={()=>{setSelectedUser(user); setNotify('No new messages'); setPrev(user); router.prefetch(`/chatpage/${user.nickname}`)}}
+            onClick={()=>{setSelectedUser(user); setUnreadMsg(0); setNotify('No new messages'); setPrev(user); router.prefetch(`/chatpage/${user.nickname}`)}}
             className='w-max h-max rounded-full border-white border-2 hover:cursor-pointer'>
             {/* // href={'/login'}> */}
               <img
@@ -209,11 +238,17 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
                 </p>
                 
               </div>
+
+              <div className='flex items-center gap-x-2 hover:cursor-pointer'>
+                {console.log(notifiers)}
+                <FaEnvelope fill={(user.userId==getNotificationSenders(user,notifiers)) && (notifiers && notifiers[index]?.unRead > 0)? 'red':'gray' } size={20} />
+                {(user.userId==getNotificationSenders(user,notifiers)) && (notifiers && notifiers[index]?.unRead > 0) ? <small className='uppercase text-white'>{`${(user.userId==getNotificationSenders(user,notifiers)) && (getNotificationUnRead(user, notifiers))} unread ${(notifiers && notifiers[index]?.unRead > 0)? 'messages':'message'}`}</small> : null}
+              </div>
             </div>
           </motion.div>
 )})}    
       </motion.div>}
-      {!notify.includes('undefined') && <small className='uppercase'>{notify && !notify.includes('undefined') && notify || 'No new messages'}</small>}
+      {/* {!notify.includes('undefined') && <small className='uppercase'>{notify && !notify.includes('undefined') && notify || 'No new messages'}</small>} */}
     </div>
   );
 };
