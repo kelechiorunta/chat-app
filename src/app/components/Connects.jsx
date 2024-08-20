@@ -159,6 +159,31 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
          }
      }
 
+    const clearNotifications = async(user) => {
+      if (user){
+        // const senderRef = doc(db, 'users', sender);
+        const activeRef = doc(db, 'users', active && active.uid);
+        const snapshot = await getDoc(activeRef);
+
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        var notificationUnread = data.userdata?.notification || [];
+
+        if (notificationUnread){
+          const updatedNotifications = notificationUnread.filter(n => n.sender !== user.userId)
+          notificationUnread = updatedNotifications;
+          const sendersSet = new Set(notificationUnread.map(JSON.stringify)); // Convert to strings to ensure uniqueness
+          const uniqueNotifications = Array.from(sendersSet).map(JSON.parse); // Convert back to objects
+
+          await updateDoc(activeRef, {
+            "userdata.notification": uniqueNotifications,
+          }, { merge: true });
+        }
+        
+      }       
+          }
+     }
+
   // const cacheFilteredUsers = useCallback(()=>{
     const filteredUsers = others && others.filter(user =>
       filter === 'all' ? true : user.gender === filter
@@ -175,9 +200,9 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
   };
 
   return (
-    <div className="p-4 bg-gray-100 dark:bg-gray-800 h-max">
+    <div className="p-4 rounded-md bg-gradient-conic from-40%  from-white via-slate-800 to-slate-100 dark:bg-gray-800 h-max">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="styleConnect text-xl font-bold text-gray-700 dark:text-gray-300 xsm:max-[400px]:hidden">Let's Connect</h1>
+        <h1 className="styleConnect text-xl font-bold text-gray-700 dark:text-gray-300 uppercase xsm:max-[400px]:hidden">Let's Connect</h1>
         <div className="flex items-center gap-2">
           <FaFilter className="text-gray-500" />
           <button onClick={() => handleFilterChange('all')} className={`px-4 py-1 ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'} rounded-md`}>All</button>
@@ -214,7 +239,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
               visible: { opacity: 1, x:0},
               hidden: { opacity: 0, x:20},
             }}
-            onClick={()=>{setSelectedUser(user); setUnreadMsg(0); setNotify('No new messages'); setPrev(user); router.prefetch(`/chatpage/${user.nickname}`)}}
+            onClick={()=>{setSelectedUser(user); setUnreadMsg(0); setNotify('No new messages'); clearNotifications(user); setPrev(user); router.prefetch(`/chatpage/${user.nickname}`)}}
             className='w-max h-max rounded-full border-white border-2 hover:cursor-pointer'>
             {/* // href={'/login'}> */}
               <img
@@ -239,10 +264,12 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
                 
               </div>
 
-              <div className='flex items-center gap-x-2 hover:cursor-pointer'>
+              <div
+              onClick={()=>{clearNotifications(user); setSelectedUser(user)}}
+              className='flex items-center gap-x-2 hover:cursor-pointer'>
                 {console.log(notifiers)}
-                <FaEnvelope fill={(user.userId==getNotificationSenders(user,notifiers)) && (notifiers && notifiers[index]?.unRead > 0)? 'red':'gray' } size={20} />
-                {(user.userId==getNotificationSenders(user,notifiers)) && (notifiers && notifiers[index]?.unRead > 0) ? <small className='uppercase text-white'>{`${(user.userId==getNotificationSenders(user,notifiers)) && (getNotificationUnRead(user, notifiers))} unread ${(notifiers && notifiers[index]?.unRead > 0)? 'messages':'message'}`}</small> : null}
+                <FaEnvelope fill={(user.userId==getNotificationSenders(user,notifiers)) && (getNotificationUnRead(user, notifiers) > 0)? 'red':'gray' } size={20} />
+                {(user.userId==getNotificationSenders(user,notifiers)) && (getNotificationUnRead(user, notifiers) > 0) ? <small className='uppercase text-white'>{`${(user.userId==getNotificationSenders(user,notifiers)) && (getNotificationUnRead(user, notifiers))} unread ${(getNotificationUnRead(user, notifiers) > 1)? 'messages':'message'}`}</small> : null}
               </div>
             </div>
           </motion.div>

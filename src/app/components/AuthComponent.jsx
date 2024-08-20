@@ -10,9 +10,6 @@ import { doc, onSnapshot, getDoc, collection, query, orderBy, where } from "fire
 
 export const authContext = createContext(null)
 
-
-
-
 export default function AuthComponent({children}) {
     
     const [isSignedOut, setIsSignedOut] = useState(false) 
@@ -30,6 +27,7 @@ export default function AuthComponent({children}) {
     const [unreadMsg, setUnreadMsg] = useState(0)
     const [ignoredUserId, setIgnoredUserId] = useState(null)
     const [selectedUser, setSelectedUser] = useState(null);
+    const [istyping, setIsTyping] = useState(false)
     
     
 
@@ -103,7 +101,7 @@ export default function AuthComponent({children}) {
     }, [active, activeuser, auth, photo,])
 
   return (
-    <authContext.Provider value={{selectedUser, setSelectedUser, ignoredUserId, setIgnoredUserId, unreadMsg, setUnreadMsg, messages, setMessages, prev, setPrev, active, users, session, setSession, sender, setSender, onlineUsers, setOnlineUsers, isSignedOut, setIsSignedOut, photo, activeuser, isFetched, setIsFetched}}>
+    <authContext.Provider value={{istyping, setIsTyping, selectedUser, setSelectedUser, ignoredUserId, setIgnoredUserId, unreadMsg, setUnreadMsg, messages, setMessages, prev, setPrev, active, users, session, setSession, sender, setSender, onlineUsers, setOnlineUsers, isSignedOut, setIsSignedOut, photo, activeuser, isFetched, setIsFetched}}>
         {children}
     </authContext.Provider>
   )

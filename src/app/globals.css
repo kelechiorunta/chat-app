@@ -74,6 +74,21 @@ body {
     }
   }
 
+  .hideIn {
+    max-height: 70px;
+    overflow: hidden;
+    transition: max-height 1s ease, transform 1s ease;
+    /* transform: translateY(100%); Start from the bottom */
+  }
+  
+  .show {
+    max-height: 300px;
+    overflow: auto;
+    transition: max-height 1s ease, transform 1s ease;
+    /* transform: translateY(-100%); Slide upwards */
+  }
+  
+
   .connect{
     animation: colorChange 5s ease alternate infinite;
   }

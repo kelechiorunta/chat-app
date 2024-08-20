@@ -9,13 +9,16 @@ import MyChatPage from '../@chatty/chatpage/[...id]/page';
 import DashboardLayout from '../dashboard/layout';
 import { collection, updateDoc, query, doc, onSnapshot, orderBy, getDoc, increment, runTransaction, setDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { FaSpinner, FaToggleOff, FaToggleOn } from 'react-icons/fa';
 
 const ChatWindow = ({signedUser, selectedUser, setSelectedUser }) => {
   const {activeuser} = useAuth()
-  const {setIgnoredUserId, messages, setMessages, unreadMsg, setUnreadMsg, setmessages, prev, setPrev, onlineUsers, sender, setSender, session, setSession} = useContext(authContext)
+  const {istyping, setIgnoredUserId, messages, setMessages, unreadMsg, setUnreadMsg, setmessages, prev, setPrev, onlineUsers, sender, setSender, session, setSession} = useContext(authContext)
   const messagesEndRef = useRef(null);
   const [filteredMessages, setFilteredMessages] = useState(messages && messages)
   const [notification, setNotification] = useState(false)
+  const [istoggled, setIsToggled] = useState(false)
+  
   // const [sender, setSender] = useState(null)
   // const [acceptedIds, setAcceptedIds] = useState('')
 
@@ -48,6 +51,9 @@ const ChatWindow = ({signedUser, selectedUser, setSelectedUser }) => {
     setSelectedUser(user)
   }
 
+  const handleToggle = () => {
+    setIsToggled(!istoggled)
+  }
   // useEffect(()=>{
   //   setFilteredMessages(messages)
   // },[])
@@ -110,9 +116,9 @@ return(
               const updatedUnread = currentUnread + 1
               notification.push(sender);
 
-              await updateDoc(senderRef, {
-                "userdata.UnRead": updatedUnread + 1,
-              }, { merge: true });
+              // await updateDoc(senderRef, {
+              //   "userdata.UnRead": updatedUnread + 1,
+              // }, { merge: true });
 
               if (!data.userdata?.notification){
                 await updateDoc(activeRef, {
@@ -122,21 +128,6 @@ return(
 
               
           }
-          // const unsub = onSnapshot(senderRef, async (snapshot) => {
-          //   if (snapshot.exists()) {
-          //     const data = snapshot.data();
-          //     const currentUnread = data.userdata?.UnRead || 0;
-          //     const updatedUnread = currentUnread + 1
-
-          //     // Increment UnRead by 1
-          //     await updateDoc(senderRef, {
-          //       "userdata.UnRead": updatedUnread,
-          //     }, { merge: true });
-          //     return
-          //   }
-          // });
-          
-          // return () => unsub();
         }
       }
       
@@ -254,11 +245,19 @@ return(
               // duration: 2,
             },
           }, hidden: { opacity: 0, x:'0'}, }}
-    className="flex-1 p-4 overflow-auto bg-black text-white xsm:max-lg:overflow-visible">
+    className={`${istoggled? 'hideIn' : 'show'} flex-1 p-4 overflow-auto bg-black border-gray-800 border rounded relative text-white xsm:max-lg:overflow-auto `}>
         {/* <MyChatPage/> */}
           {/* <MyChatPage params={{id: selectedUser && selectedUser.nickname}}/> */}
-          {/* <DashboardLayout/> */}
-        <p className='text-white'>{`${activeuser && activeuser.displayName} connects with ${selectedUser && selectedUser.nickname}`}</p>
+          {/* <DashboardLayout/> */} 
+          
+        {selectedUser && <p className={`text-white w-full -mt-4 flex items-center justify-center gap-x-24 text-center p-4 bg-gradient-to-t from-blue-900 via-gray-900 to-gray-600 shadow-md rounded uppercase sticky -top-3 z-20 xsm:max-sm:text-[11px] `}>
+        {`${activeuser && activeuser.displayName} connects with ${selectedUser && selectedUser.nickname}`}
+        <span onClick={handleToggle}
+        className='flex hover:cursor-pointer'>{istoggled ? <FaToggleOff size={25} fill='white'/> : <FaToggleOn size={25} fill='white'/>}</span>
+        {istyping && <p className='text-white rounded flex xsm:max-sm:text-[11px]'>Typing<FaSpinner size={20} fill='white' className='animate-spin'/></p>}
+      </p>
+      
+}
       { notification  ? <Notification
                           sender={sender}
                           getUserName={getUserName}
@@ -294,7 +293,7 @@ return(
             className=''>
           {msg.senderId === (activeuser && activeuser.uid) ? <div className='flex flex-row-reverse gap-x-2 items-center'><img src={activeuser && activeuser.photoURL} width={50} height={50} className='w-[50px] h-[50px] rounded-full' alt='S'/> <small className='italic'>{activeuser && activeuser.displayName}</small> </div>
               :  <div className='flex gap-x-2 items-center'><img src={(selectedUser && selectedUser.picture)} width={50} height={50} className='w-[50px] h-[50px] rounded-full' alt='R'/> <small className='italic'>{(selectedUser && selectedUser.nickname)}</small></div>} 
-            {msg.istyping==true? 'Typing' : `${msg.text}`}
+            {`${msg.text}`}
             {/* ORIGINALLY I Refrenced SELECTEDUSER(picture for the image && nickname for the name in italics). REVERT TO THIS IF ISSUES ARISE */}
             {/* {(msg.senderId != selectedUser && selectedUser.userId) && trackInterceptingUser(msg.senderId)} */}
             {/* {sender && trackInterceptingUser(msg.senderId)} */}

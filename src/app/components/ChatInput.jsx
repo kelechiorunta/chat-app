@@ -1,10 +1,12 @@
 // components/ChatInput.js
 'use client'
-import { useState, memo } from 'react';
+import { useState, useContext, memo } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
+import { authContext } from './AuthComponent';
 
-const ChatInput = ({ onSendMessage, istyping, trackTyping }) => {
+const ChatInput = ({ onSendMessage, trackTyping }) => {
   const [message, setMessage] = useState('');
+  const { istyping, setIsTyping } = useContext(authContext)
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,6 +14,14 @@ const ChatInput = ({ onSendMessage, istyping, trackTyping }) => {
       onSendMessage(message);
       setMessage('');
     }
+  };
+
+  const handleTyping = () => {
+    setIsTyping(true); // Set isTyping to true immediately
+  
+    setTimeout(() => {
+      setIsTyping(false); // Set isTyping to false after 1 second
+    }, 1000);
   };
 
   return (
@@ -22,6 +32,7 @@ const ChatInput = ({ onSendMessage, istyping, trackTyping }) => {
         value={message}
         // onKeyDown={()=>alert('Hello')}
         
+        onInput={()=> handleTyping()}
         onChange={(e) => {setMessage(e.target.value); }}
         placeholder="Type a message"
       />

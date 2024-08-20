@@ -179,12 +179,12 @@ const Dashboard = () => {
   return (
     <div className={`${isSignedOut && 'isSignedOut'}  flex h-screen`}>
     {showContent && 
-      <div className='w-full slideIn flex xsm:max-lg:flex-col'>
+      <div className='w-full slideIn flex xsm:max-lg:flex-col bg-gradient-to-t from-blue-400 via-black to-blue-500'>
       <Sidebar animate_user={animate_user} setAnimateUser={setAnimateUser} timerId_login={timerId_login} timerId_proj={timerId_proj} users={clients} onSelectUser={setSelectedUser} onSelectTab={setActiveTab} />
       
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ">
         <ChatHeader others={others} setOthers={setOthers}/>
-      <div className="flex-1 p-4 ">{renderContent({activeuser})}</div>
+      <div className="flex-1 p-4 xsm:max-lg:">{renderContent({activeuser})}</div>
          {(activeTab !== 'profile') && <ChatWindow istyping={istyping} setIsTyping={setIsTyping} signedUser={activeuser} setSelectedUser={setSelectedUser} selectedUser={selectedUser} messages={messages} />}
          {(activeTab !== 'profile') && <ChatInput istyping={istyping} trackTyping={trackTyping} onSendMessage={handleSendMessage} />}
       </div>
