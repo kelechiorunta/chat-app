@@ -47,7 +47,10 @@ export default function AuthComponent({children}) {
                     const unsub = onSnapshot(userRef, (snapshot) => {
                         const data = snapshot.data()
                         const { picture } = data.userdata 
-                        setPhoto(picture)
+                        if (picture){
+                          setPhoto(picture)
+                        }
+                        
                     })
 
                     const usersCollection = collection(db, 'users');

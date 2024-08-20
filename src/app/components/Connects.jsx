@@ -23,6 +23,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
   const [onlineId, setOnlineId] = useState(null)
   const [isActive, setisActive] = useState(false)
   const [notifiers, setNotifiers] = useState(null)
+  const [selectedId, setSelected] = useState(null)
   
   // const [filteredUsers, setFilteredUsers] = useState([])
 
@@ -185,19 +186,36 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
      }
 
   // const cacheFilteredUsers = useCallback(()=>{
-    const filteredUsers = others && others.filter(user =>
+    const getOthers = (arr, sliceNo) => {
+      return arr && arr.slice(sliceNo*2, (sliceNo+1)*2)
+    }
+
+    const filteredUsers = getOthers(others.slice().sort((a,b)=>a.nickname.localeCompare(b.nickname)), 0) 
+    && getOthers(others.slice().sort((a,b)=>a.nickname.localeCompare(b.nickname)),0).filter(user =>
       filter === 'all' ? true : user.gender === filter
     
    )
-  // }, [filteredUsers, others])
-
-  // useEffect(()=>{
-  //   cacheFilteredUsers()
-  // }, [filteredUsers]);
 
   const handleFilterChange = (gender) => {
     setFilter(gender);
   };
+
+  const handlePaginate = useCallback((arr, sliceNo) => {
+    const paginatedArray = arr && arr.slice(sliceNo*2, (sliceNo+1)*2)
+    setOthers(paginatedArray)
+    setSelected(sliceNo)
+  }, [others])
+
+
+  // const paginatedfilteredArray = (arr) => {
+  //   if (arr){
+  //     handlePaginate(arr, 0)
+  //   }
+  // }
+
+  useEffect(()=>{
+    setSelected(0)
+  },[])
 
   return (
     <div className="p-4 rounded-md bg-gradient-conic from-40%  from-white via-slate-800 to-slate-100 dark:bg-gray-800 h-max">
@@ -275,6 +293,18 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
           </motion.div>
 )})}    
       </motion.div>}
+      <ul className='flex gap-x-2 bg-gradient-to-br from-gray-300 via-zinc-500
+       to-slate-400 p-4 rounded-md w-max text-white mt-2'>
+        {Array.from({length:users.length/2}, (v, item) => item + 1).map((i, index) => {
+          return(
+            <button
+            onClick={()=>handlePaginate(users && users.map((user, index)=>(user.userdata)), index)}
+            className={`${selectedId==index && 'selected'} flex items-center justify-center  p-2 w-[30px] h-[30px] rounded-full`}>
+              {index + 1}
+            </button>
+          )
+        })}
+      </ul>
       {/* {!notify.includes('undefined') && <small className='uppercase'>{notify && !notify.includes('undefined') && notify || 'No new messages'}</small>} */}
     </div>
   );

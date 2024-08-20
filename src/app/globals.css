@@ -74,8 +74,13 @@ body {
     }
   }
 
+  .selected{
+    background-color: black;
+    color: white;
+  }
+
   .hideIn {
-    max-height: 70px;
+    max-height: 65px;
     overflow: hidden;
     transition: max-height 1s ease, transform 1s ease;
     /* transform: translateY(100%); Start from the bottom */
