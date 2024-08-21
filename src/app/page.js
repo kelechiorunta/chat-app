@@ -6,7 +6,7 @@ import ConnectzPage from "./animation/page";
 
 export default function Home() {
   return (
-    <main className="flex w-full flex-col items-center justify-between px-24">
+    <main className="flex w-full h-full flex-col items-center justify-between px-24">
       <ConnectzPage/>
     </main>
   );

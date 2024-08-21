@@ -72,9 +72,9 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab, setAnimateUser, anim
   };
 
   return (
-    <div className="w-1/4 h-full bg-gray-800 text-white p-4
-     flex flex-col justify-between xsm:max-lg:w-full">
-      <div className='w-full xsm:max-lg:w-full'>
+    <div className="w-full bg-gray-800 text-white p-4
+     flex flex-col justify-between lg:w-1/4">
+      <div className='w-full xsm:max-[1023px]:w-full'>
         <h2 className="text-2xl mb-4">DASHBOARD</h2>
         <ul className='w-full'>
           <li
@@ -110,10 +110,10 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab, setAnimateUser, anim
         </ul>
       </div>
       <button
-        className="mt-4 p-2 w-full bg-red-600 hover:bg-red-500 flex items-center justify-center"
+        className="mt-4 p-2 w-[100%] rounded-md text-black bg-gradient-to-b from-slate-300 via-neutral-300 to-neutral-800 hover:bg-red-500 flex items-center justify-center xsm:max-lg:w-[40%]"
         onClick={handleSignOut}
       >
-        <FaSignOutAlt fill='white' className="inline-block mr-2" />
+        <FaSignOutAlt fill='black' className="inline-block mr-2" />
         {/* Logout */}
         {isPending? <FaSpinner fill='white' size={20} className='animate-spin mx-auto'/> : 'Sign Out'}
       </button>

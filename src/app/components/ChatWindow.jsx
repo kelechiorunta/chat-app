@@ -8,8 +8,9 @@ import Modal from './Modal';
 import MyChatPage from '../@chatty/chatpage/[...id]/page';
 import DashboardLayout from '../dashboard/layout';
 import { collection, updateDoc, query, doc, onSnapshot, orderBy, getDoc, increment, runTransaction, setDoc, addDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import { FaSpinner, FaToggleOff, FaToggleOn } from 'react-icons/fa';
+import BallObject from './BallObject';
 
 const ChatWindow = ({signedUser, selectedUser, setSelectedUser }) => {
   const {activeuser} = useAuth()
@@ -107,18 +108,11 @@ return(
           const notification = [];
           if (snapshot.exists()){
             const data = snapshot.data();
-            // const notificationSet = new Set();
-            // const { unRead } = data.userdata?.notification?.[0] 
+           
               const currentUnread = data.userdata?.unRead|| 0;
-              // const currentUnread = data.userdata?.notificationSet || 0;
               
-              // console.log(user)
               const updatedUnread = currentUnread + 1
               notification.push(sender);
-
-              // await updateDoc(senderRef, {
-              //   "userdata.UnRead": updatedUnread + 1,
-              // }, { merge: true });
 
               if (!data.userdata?.notification){
                 await updateDoc(activeRef, {
@@ -165,7 +159,8 @@ return(
     var mergedIds = '';
     var notification = [];
     mergedIds = ([`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_'));
-        if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
+    if  (auth){    
+    if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
           const senderRef = doc(db, 'users', sender);
           const activeRef = doc(db, 'users', activeuser && activeuser.uid);
         const snapshot = await getDoc(activeRef);
@@ -200,7 +195,7 @@ return(
               
             }
   }
-  
+}
   // TO NOTIFY CHATTERS (current sender and reciever) OF INCOMING THIRD PARTY CONNECT/SENDER  
   const notifyChatters = useCallback((sender)=>{
     if ((sender && (sender !== (selectedUser && selectedUser.userId))) && (sender && (sender !== (activeuser && activeuser.uid)))){
@@ -246,11 +241,8 @@ return(
             },
           }, hidden: { opacity: 0, x:'0'}, }}
     className={`${istoggled? 'hideIn' : 'show'} flex-1 p-4 overflow-auto bg-black border-gray-800 border rounded relative text-white xsm:max-lg:overflow-auto `}>
-        {/* <MyChatPage/> */}
-          {/* <MyChatPage params={{id: selectedUser && selectedUser.nickname}}/> */}
-          {/* <DashboardLayout/> */} 
-          
-        {selectedUser && <p className={`text-white w-full -mt-4 flex items-center justify-center gap-x-24 text-center p-4 bg-gradient-to-t from-blue-900 via-gray-900 to-gray-600 shadow-md rounded uppercase sticky -top-3 z-20 xsm:max-sm:text-[11px] `}>
+          {/* <div className='w-auto'><BallObject ballsize={'50px'} bounce_height={1}/></div> */}
+        {selectedUser && <p className={`text-white text-[11px] w-full -mt-8 flex items-center justify-center gap-x-24 p-4 bg-gradient-to-t from-blue-900 via-gray-900 to-gray-600 shadow-md rounded uppercase sticky -top-6 z-20 xsm:max-sm:text-[11px] `}>
         {`${activeuser && activeuser.displayName} connects with ${selectedUser && selectedUser.nickname}`}
         <span onClick={handleToggle}
         className='flex hover:cursor-pointer'>{istoggled ? <FaToggleOff size={25} fill='white'/> : <FaToggleOn size={25} fill='white'/>}</span>
@@ -291,6 +283,7 @@ return(
               
             }}
             className=''>
+              
           {msg.senderId === (activeuser && activeuser.uid) ? <div className='flex flex-row-reverse gap-x-2 items-center'><img src={activeuser && activeuser.photoURL} width={50} height={50} className='w-[50px] h-[50px] rounded-full' alt='S'/> <small className='italic'>{activeuser && activeuser.displayName}</small> </div>
               :  <div className='flex gap-x-2 items-center'><img src={(selectedUser && selectedUser.picture)} width={50} height={50} className='w-[50px] h-[50px] rounded-full' alt='R'/> <small className='italic'>{(selectedUser && selectedUser.nickname)}</small></div>} 
             {`${msg.text}`}

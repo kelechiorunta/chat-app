@@ -10,8 +10,8 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={`scaleIn fixed inset-0 m-auto flex items-center justify-center w-full bg-black bg-opacity-50 z-20`}>
-      <div className="bg-slate-900 text-white p-4 m-auto rounded shadow-lg w-auto transition-all z-50 xsm:max-[400px]:w-[350px] xsm:max-[400px]:mx-auto xsm:max-md:w-[90%] xsm:max-md:mx-auto xsm:max-lg:max-w-2/5 xsm:max-2xl:max-w-2/5">
+    <div className={`scaleIn fixed inset-0 m-auto flex items-center justify-center w-full bg-black bg-opacity-50 z-20 min-h-[520px]`}>
+      <div className="bg-slate-900 min-h-[520px] text-white p-4 m-auto rounded shadow-lg w-auto transition-all z-50 xsm:max-[400px]:w-[350px] xsm:max-[400px]:mx-auto xsm:max-md:w-[90%] xsm:max-md:mx-auto xsm:max-lg:max-w-2/5 xsm:max-2xl:max-w-2/5">
     {/* //   className="bg-white m-auto max-w-lg mx-4 rounded-lg shadow-lg"> */}
         <div className="flex w-full justify-between items-center p-4 border-b border-gray-500">
           <h2 className="text-xl font-semibold">{title}</h2>

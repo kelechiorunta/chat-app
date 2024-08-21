@@ -34,6 +34,11 @@ body {
 
 @layer components {
 
+/*  */
+
+
+
+/*  */
   *, *::after, *::before{
     transform-style: preserve-3d;
     perspective: 1000px;
@@ -79,15 +84,15 @@ body {
     color: white;
   }
 
-  .hideIn {
-    max-height: 65px;
+   .hideIn { 
+    max-height: 60px;
     overflow: hidden;
-    transition: max-height 1s ease, transform 1s ease;
+    transition: max-height 1s ease, transform 1s ease; 
     /* transform: translateY(100%); Start from the bottom */
-  }
+  } 
   
-  .show {
-    max-height: 300px;
+   .show {
+    max-height: 520px;
     overflow: auto;
     transition: max-height 1s ease, transform 1s ease;
     /* transform: translateY(-100%); Slide upwards */
@@ -110,6 +115,7 @@ body {
   .scaleIn{
     animation: scaleIn 1.5s forwards;
   }
+  
   
   @keyframes slideIn {
     from {

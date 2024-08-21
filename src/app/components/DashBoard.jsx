@@ -19,6 +19,7 @@ import Link from 'next/link';
 import ChatHeader from './ChatHeader';
 import { authContext } from './AuthComponent';
 import useUsers from '../firebase/hook/useUsers';
+import Validateuser from './Validateuser';
 
 
 const Dashboard = () => {
@@ -27,8 +28,9 @@ const Dashboard = () => {
   const router = useRouter();
   const [isPendingOut, startTransitionOut] = useTransition()
   const [isSignedOut, setIsSignedOut] = useState(false) 
-  const {sender, selectedUser, setSelectedUser, session, setSession, setSender, prev, messages, setMessages} = useContext(authContext)
+  const {sender, formerUsers, selectedUser, setSelectedUser, session, setSession, setSender, prev, messages, setMessages} = useContext(authContext)
   const [clients, setClients] = useState([]);
+  const [isPending, startTransition] = useTransition();
   // const [selectedUser, setSelectedUser] = useState(null);
   // const [messages, setMessages] = useState([]);
   const [others, setOthers] = useState([])
@@ -36,6 +38,7 @@ const Dashboard = () => {
   const [isAvail, setisAvail] = useState(false)
   const [animate_user, setAnimateUser] = useState(false)
   const [notify, setNotify] = useState('')
+  const [showValidateUser, setShowValidateUser] = useState(false);
 
   const { activeuser, loading } = useAuth();
 
@@ -86,11 +89,19 @@ const Dashboard = () => {
     };
   }, [activeuser, loading, router]);
 
-  const revalidateChats = () => {
-    if (selectedUser) {
-       alert(`Ready to connect with ${selectedUser && selectedUser.nickname}`)
+  const revalidateChats = useCallback(() => {
+    if (formerUsers == selectedUser){
+      setShowValidateUser(false)
+      setSelectedUser(formerUsers)
+    }else 
+    {setShowValidateUser(true)
+      setSelectedUser(selectedUser)
+    }
+    if (selectedUser && formerUsers) {
+     
+       //alert(`Ready to connect with ${selectedUser && selectedUser.nickname}`)
       // [user.uid, recipient.id].sort().join('_');
-      const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
+      const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser  && selectedUser.userId}`].sort().join('_');
       console.log(mergedIds)
       setSession(mergedIds)
     
@@ -124,13 +135,13 @@ const Dashboard = () => {
 
       return () => unsubscribeMessages();
     }
-  }
+  }, [selectedUser, formerUsers, showValidateUser])
 
   useEffect(() => {
 
     revalidateChats()
 
-  }, [selectedUser, prev]);
+  }, [selectedUser, prev, formerUsers, showValidateUser]);
 
   const handleSendMessage = async(message) => {
     // const mergedIds = [`${activeuser && activeuser.uid}`, `${selectedUser && selectedUser.userId}`].sort().join('_');
@@ -177,16 +188,23 @@ const Dashboard = () => {
   };
 
   return (
-    <div className={`${isSignedOut && 'isSignedOut'}  flex h-screen`}>
+    <div className={`${isSignedOut && 'isSignedOut'}  flex w-full xsm:max-lg:flex-col`}>
     {showContent && 
-      <div className='w-full slideIn flex xsm:max-lg:flex-col bg-gradient-to-t from-blue-400 via-black to-blue-500'>
+      <div className='w-full  flex xsm:max-lg:flex-col bg-gradient-to-t from-blue-400 via-black to-blue-500'>
       <Sidebar animate_user={animate_user} setAnimateUser={setAnimateUser} timerId_login={timerId_login} timerId_proj={timerId_proj} users={clients} onSelectUser={setSelectedUser} onSelectTab={setActiveTab} />
       
-      <div className="flex-1 flex flex-col ">
+      <div className="flex-1 flex flex-col xsm:max-lg:w-full">
         <ChatHeader others={others} setOthers={setOthers}/>
-      <div className="flex-1 p-4 xsm:max-lg:">{renderContent({activeuser})}</div>
-         {(activeTab !== 'profile') && <ChatWindow istyping={istyping} setIsTyping={setIsTyping} signedUser={activeuser} setSelectedUser={setSelectedUser} selectedUser={selectedUser} messages={messages} />}
+      
+      <div className="flex-1 flex p-4 w-full xsm:max-md:flex-col ">
+        {renderContent({activeuser})}
+      <div className='flex w-full '>
+         { (showValidateUser) ? <Validateuser setShowValidateUser={setShowValidateUser}
+      incomingUser={selectedUser}/> : (activeTab !== 'profile') && <ChatWindow istyping={istyping} setIsTyping={setIsTyping} signedUser={activeuser} setSelectedUser={setSelectedUser} selectedUser={selectedUser} messages={messages} />}
+         </div>
+        </div>
          {(activeTab !== 'profile') && <ChatInput istyping={istyping} trackTyping={trackTyping} onSendMessage={handleSendMessage} />}
+       
       </div>
       </div>
     }
@@ -197,95 +215,4 @@ const Dashboard = () => {
 export default Dashboard;
 
 
-//////////////////////////////////////////////////////
 
-// // import styles from '../../styles_css/Dashboard.css'
-// import styles from '../globals.css'
-// import useAuth from '@/custom_hooks/useAuth';
-// import { useEffect, useState, useCallback } from 'react';
-// import { useRouter } from 'next/navigation';
-// import Sidebar from '../components/Sidebar';
-// import ChatWindow from '../components/ChatWindow';
-// import ChatInput from '../components/ChatInput';
-// import { onAuthStateChanged, getAuth } from 'firebase/auth';
-// import { collection, query, onSnapshot, addDoc, orderBy } from 'firebase/firestore';
-// import { auth, app, db } from '../firebase/config'
-// import LoadingDots from './LoadingDots';
-
-// const Dashboard = () => {
-// //   const auth = getAuth(app)
-//   const [users, setClients] = useState([]);
-//   const [selectedUser, setSelectedUser] = useState(null);
-//   const [messages, setMessages] = useState([]);
-//   const router = useRouter();
-//   const [showContent, setShowContent] = useState(false);
-
-//   const { activeuser, loading } = useAuth();
-
-//   useEffect(() => {
-//     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-//       if (!user && !loading && !activeuser) {
-//         router.push('/login');
-//       }else if (user) {
-//         setShowContent(true);
-//       }
-//     });
-
-//     const usersCollection = collection(db, 'users');
-//     const unsubscribeUsers = onSnapshot(usersCollection, (snapshot) => {
-//       const usersData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-//       setClients(usersData);
-//     });
-
-//     return () => {
-//       unsubscribeAuth();
-//       unsubscribeUsers();
-//     };
-//   }, [activeuser, loading, router]);
-
-//   useEffect(() => {
-//     if (selectedUser) {
-//       const messagesCollection = collection(db, 'chats', selectedUser.id, 'messages');
-//       const q = query(messagesCollection, orderBy('timestamp'));
-//       const unsubscribeMessages = onSnapshot(q, (snapshot) => {
-//         const messagesData = snapshot.docs.map((doc) => doc.data());
-//         setMessages(messagesData);
-//       });
-
-//       return () => unsubscribeMessages();
-//     }
-//   }, [selectedUser]);
-
-//   const handleSendMessage = useCallback(async(message) => {
-//     if (selectedUser) {
-//       const messagesCollection = collection(db, 'chats', selectedUser.id, 'messages');
-//       await addDoc(messagesCollection, {
-//         text: message,
-//         timestamp: new Date(),
-//         isSent: true,
-//       });
-//     }
-//   }, [selectedUser]) 
-
-//   if (loading) return <LoadingDots/>;
-
-//   return (
-//     <div className={`${styles.container} flex h-screen`}>
- 
-//       {/* { */}
-//       {showContent && 
-//       <div className='slideIn w-full flex'>
-//       <Sidebar users={users} onSelectUser={setSelectedUser} />
-//       <div className="flex-1 flex flex-col">
-//         <ChatWindow messages={messages} />
-//         <ChatInput onSendMessage={handleSendMessage} />
-//       </div>
-        
-//       </div>
-//       }
-      
-//     </div>
-//   );
-// };
-
-//export default Dashboard;

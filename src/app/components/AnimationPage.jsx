@@ -91,7 +91,7 @@ export default function AnimationPage() {
         variants={{hidden:{opacity:0, x:-100}, visible:{opacity:1, x:0, transition:{staggerChildren:2.0, delay:5}}}}>
         Connecting with <TyperConnectz texts={["Friends", "Destiny", "Partners"]}/></motion.div>
         {/* <Ball/> */}
-        <BallObject/>
+        <BallObject ballsize={'100px'} bounce_height={110}/>
         <div className='authenticate mt-12 flex gap-3'>
             <Link
             className='px-3 py-2  bg-[#3b82f6] text-white flex gap-x-2 items-center text-xl rounded-md w-max max-w-[300px]'

@@ -62,8 +62,8 @@ body{
       transform: rotateX(calc(30deg * $n));
       align-items: center;
       justify-content: center;
-      width:100px;
-      height: 100px;
+      // width:100px;
+      // height: 100px;
       border-radius: 50%;
       border: 1px solid black;
       animation: illuminate 25s linear infinite;
@@ -80,8 +80,8 @@ body{
       transform: rotateY(calc(30deg * $n));
       align-items: center;
       justify-content: center;
-      width:100px;
-      height: 100px;
+      // width:100px;
+      // height: 100px;
       border-radius: 50%;
       border: 1px solid black;
       animation: illuminate 25s linear infinite;

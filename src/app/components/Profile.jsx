@@ -151,7 +151,7 @@ const Profile = ({signedInUser, activetab}) => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row justify-center items-center lg:items-start p-4 lg:p-8 bg-gray-100 max-h-screen">
+    <div className="flex flex-col w-full lg:flex-col justify-center items-center lg:items-center px-8 lg:px-10 bg-gray-100 max-h-screen">
       
       {/* {isPendingUserLoad ? (
         <div className="animate-pulse">
@@ -167,9 +167,9 @@ const Profile = ({signedInUser, activetab}) => {
       ) : */}
       
       
-      <div className="flex flex-col items-center lg:w-1/3 mb-6 lg:mb-0 lg:mr-8">
-        <div className="bg-white p-4 rounded-lg shadow-lg w-full">
-          <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center w-full lg:w-full mb-6 lg:mb-0 lg:ml-0">
+        <div className="bg-white flex flex-col px-4 rounded-lg shadow-lg w-full">
+          <div className="flex flex-col items-center w-full">
             {profile.picture ? (
               <img
                 // src={URL.createObjectURL(profile.picture)}
@@ -199,7 +199,7 @@ const Profile = ({signedInUser, activetab}) => {
       </div>
       
       {/* )} */}
-      <div className="lg:w-2/3 w-full">
+      <div className="w-full lg:w-full">
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg space-y-4">
           <div className="flex items-center">
             <FaUser className="text-gray-500 mr-2" />

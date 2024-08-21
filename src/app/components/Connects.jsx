@@ -11,10 +11,11 @@ import { authContext } from './AuthComponent';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import BallObject from './BallObject';
 
 const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, setNotify, animate_user}) => {
   const userContext = useContext(authContext)
-  const {setPrev, active, unreadMsg, ignoredUserId, setUnreadMsg, setOnlineUsers, setSender, sender} = userContext
+  const {setPrev, active, setFormerUser, setUnreadMsg, setOnlineUsers, setSender, sender} = userContext
   const { users } = useUsers();
   const router = useRouter();
   const [filter, setFilter] = useState('all');
@@ -187,7 +188,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
 
   // const cacheFilteredUsers = useCallback(()=>{
     const getOthers = (arr, sliceNo) => {
-      return arr && arr.slice(sliceNo*2, (sliceNo+1)*2)
+      return arr && arr.slice(sliceNo*3, (sliceNo+1)*3)
     }
 
     const filteredUsers = getOthers(others.slice().sort((a,b)=>a.nickname.localeCompare(b.nickname)), 0) 
@@ -201,7 +202,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
   };
 
   const handlePaginate = useCallback((arr, sliceNo) => {
-    const paginatedArray = arr && arr.slice(sliceNo*2, (sliceNo+1)*2)
+    const paginatedArray = arr && arr.slice(sliceNo*3, (sliceNo+1)*3)
     setOthers(paginatedArray)
     setSelected(sliceNo)
   }, [others])
@@ -218,9 +219,10 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
   },[])
 
   return (
-    <div className="p-4 rounded-md bg-gradient-conic from-40%  from-white via-slate-800 to-slate-100 dark:bg-gray-800 h-max">
+    <div className="p-4 rounded-md bg-gradient-conic from-40%  from-white via-slate-800 to-slate-100 dark:bg-gray-800 h-max min-h-[520px] w-[100%] xsm:max-md:w-full">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="styleConnect text-xl font-bold text-gray-700 dark:text-gray-300 uppercase xsm:max-[400px]:hidden">Let's Connect</h1>
+        {/* <h1 className="styleConnect text-xl font-bold text-gray-700 dark:text-gray-300 uppercase xsm:max-[400px]:hidden">Let's Connect</h1> */}
+        {/* <div className='w-auto'><BallObject ballsize={'50px'} bounce_height={10}/></div> */}
         <div className="flex items-center gap-2">
           <FaFilter className="text-gray-500" />
           <button onClick={() => handleFilterChange('all')} className={`px-4 py-1 ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'} rounded-md`}>All</button>
@@ -240,7 +242,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
               staggerChildren:2.5,
             },
           }, hidden: { opacity: 0, x:20}, }}
-      className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      className="w-full grid grid-cols-1 xsm:max-md:grid-cols-1 lg:grid-cols-1 gap-x-4 gap-y-2 xsm:max-md:w-full">
         {console.log(filteredUsers)}
         {filteredUsers && filteredUsers.map((user, index) => {
         
@@ -269,9 +271,10 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
               />
             </motion.div>
             <div className="ml-4 w-full pr-10">
-              <h2 className="text-lg font-bold text-gray-300 dark:text-gray-200">{user.name}</h2>
+              <h2 className=" font-bold text-gray-300 dark:text-gray-200 xsm:max-[400px]:text-[15px]">{user.name}</h2>
               {/* <p className="text-gray-600 dark:text-gray-400 w-full">{user.email}</p> */}
-              <p className="text-sm text-gray-300 dark:text-gray-400">{user.nickname}</p>
+              {/* <p className="text-sm text-gray-300 dark:text-gray-400">{user.nickname}</p> */}
+              <p className="text-sm float-right ml-16 text-gray-300 dark:text-gray-400 xsm:max-sm:float-none xsm:max-sm:ml-0">{user && user.time? user?.time.toDate().toLocaleTimeString() : ''}</p>
               <div className="flex items-center gap-2">
                 
                 <FaCircle className={`w-3 h-3 ${onlineId && isActive && (user.isOnline == true) ? 'text-green-500' : 'text-gray-400'}`} />
@@ -295,7 +298,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
       </motion.div>}
       <ul className='flex gap-x-2 bg-gradient-to-br from-gray-300 via-zinc-500
        to-slate-400 p-4 rounded-md w-max text-white mt-2'>
-        {Array.from({length:users.length/2}, (v, item) => item + 1).map((i, index) => {
+        {Array.from({length:Math.ceil(users.length/3)}, (v, item) => item + 1).map((i, index) => {
           return(
             <button
             onClick={()=>handlePaginate(users && users.map((user, index)=>(user.userdata)), index)}

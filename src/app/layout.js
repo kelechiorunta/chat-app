@@ -13,7 +13,10 @@ export const metadata = {
 export default function RootLayout({ bio, children  }) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} relative`}>
+      {/* <head> */}
+        {/* <script src="https://cdn.tailwindcss.com"></script> */}
+      {/* </head> */}
+      <body className={`${poppins.className} relative overflow-y-auto`}>
       <AuthComponent>
       <div className="absolute bg-transparent top-0 w-full z-20">{bio}</div>
         {children}

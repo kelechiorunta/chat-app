@@ -25,7 +25,7 @@ const ChatInput = ({ onSendMessage, trackTyping }) => {
   };
 
   return (
-    <form className="p-4 flex xsm:max-[400px]:w-1/3 xsm:max-[400px]:p-2" onSubmit={handleSubmit}>
+    <form className="p-4 -z-10 flex xsm:max-[400px]:w-1/3 xsm:max-[400px]:p-4" onSubmit={handleSubmit}>
       <input
         type="text"
         className="flex-1 p-2 border rounded xsm:max-[400px]:min-w-[300px] xsm:max-[400px]:p-2"

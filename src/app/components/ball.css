@@ -54,8 +54,6 @@ body {
   transform: rotateX(30deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -67,8 +65,6 @@ body {
   transform: rotateX(60deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -80,8 +76,6 @@ body {
   transform: rotateX(90deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -93,8 +87,6 @@ body {
   transform: rotateX(120deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -106,8 +98,6 @@ body {
   transform: rotateX(150deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -119,8 +109,6 @@ body {
   transform: rotateX(180deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -132,8 +120,6 @@ body {
   transform: rotateY(210deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -145,8 +131,6 @@ body {
   transform: rotateY(240deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -158,8 +142,6 @@ body {
   transform: rotateY(270deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -171,8 +153,6 @@ body {
   transform: rotateY(300deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -184,8 +164,6 @@ body {
   transform: rotateY(330deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;
@@ -197,8 +175,6 @@ body {
   transform: rotateY(360deg);
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
   border-radius: 50%;
   border: 1px solid black;
   animation: illuminate 25s linear infinite;

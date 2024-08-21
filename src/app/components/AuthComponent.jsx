@@ -28,6 +28,7 @@ export default function AuthComponent({children}) {
     const [ignoredUserId, setIgnoredUserId] = useState(null)
     const [selectedUser, setSelectedUser] = useState(null);
     const [istyping, setIsTyping] = useState(false)
+    const [formerUsers, setFormerUsers] = useState(null)
     
     
 
@@ -104,7 +105,7 @@ export default function AuthComponent({children}) {
     }, [active, activeuser, auth, photo,])
 
   return (
-    <authContext.Provider value={{istyping, setIsTyping, selectedUser, setSelectedUser, ignoredUserId, setIgnoredUserId, unreadMsg, setUnreadMsg, messages, setMessages, prev, setPrev, active, users, session, setSession, sender, setSender, onlineUsers, setOnlineUsers, isSignedOut, setIsSignedOut, photo, activeuser, isFetched, setIsFetched}}>
+    <authContext.Provider value={{formerUsers, setFormerUsers, istyping, setIsTyping, selectedUser, setSelectedUser, ignoredUserId, setIgnoredUserId, unreadMsg, setUnreadMsg, messages, setMessages, prev, setPrev, active, users, session, setSession, sender, setSender, onlineUsers, setOnlineUsers, isSignedOut, setIsSignedOut, photo, activeuser, isFetched, setIsFetched}}>
         {children}
     </authContext.Provider>
   )
