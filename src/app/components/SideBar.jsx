@@ -15,6 +15,7 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab, setAnimateUser, anim
   const [activeTab, setActiveTab] = useState('profile');
   const [isPending, startTransition] = useTransition()
   const signoutContext = useContext(authContext)
+  const [developer, setDeveloper] = useState("")
 
   const {isSignedOut, setIsSignedOut} = signoutContext
 
@@ -22,9 +23,6 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab, setAnimateUser, anim
       if (!animate_user && (activeTab!='connects')){
         setAnimateUser(true)
       }
-      // }else{
-        // setAnimateUser(false)
-      // }
   }, [activeTab])
 
   const handleSignOut = async() => {
@@ -79,21 +77,21 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab, setAnimateUser, anim
         <ul className='w-full'>
           <li
             className={`cursor-pointer p-2 flex items-center ${activeTab === 'profile' && 'bg-gray-700'}`}
-            onClick={() => handleTabClick('profile')}
+            onClick={() => {handleTabClick('profile'); setDeveloper("")}}
           >
             <FaUserEdit className="inline-block mr-2" />
             Profile
           </li>
           <li
             className={`cursor-pointer p-2 flex items-center ${activeTab === 'connects' && 'bg-gray-700'}`}
-            onClick={() => {handleTabClick('connects'); animateUsers()}}
+            onClick={() => {handleTabClick('connects'); animateUsers(); setDeveloper("")}}
           >
             <FaUserFriends className="inline-block mr-2" />
             Connects
           </li>
           <li
             className={`cursor-pointer p-2 flex items-center ${activeTab === 'group' && 'bg-gray-700'}`}
-            onClick={() => handleTabClick('group')}
+            onClick={() => {handleTabClick('group'); setDeveloper("")}}
           >
             <FaUsers fill='white' className="inline-block mr-2" />
             Group Chats
@@ -102,9 +100,15 @@ const Sidebar = ({timerId_proj, timerId_login, onSelectTab, setAnimateUser, anim
             className={`cursor-pointer p-2 flex items-center`} //${activeTab === 'profile' && 'bg-gray-700'}`}
             // onClick={() => handleTabClick('profile')}
           >
-            <FaSpaceShuttle className="inline-block mr-2" />
+            
             {/* Proj */}
-            <Link className='text-white' href={`/proj`}>About Developer</Link>
+            <Link 
+             onClick={()=> {handleTabClick(''); setDeveloper("developer")}}
+             className={`w-full cursor-pointer p-2 -mt-2 -ml-2 mr-2 flex items-center ${developer === 'developer' && 'bg-gray-700'}`} 
+             href={`/proj`}>
+              <FaSpaceShuttle fill='white' className="inline-block mr-2" />
+              About Developer
+            </Link>
           </li>
          
         </ul>

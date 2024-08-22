@@ -4,9 +4,6 @@ import { useEffect, useRef, memo, useContext, useCallback, useState } from 'reac
 import useAuth from '@/custom_hooks/useAuth';
 import { authContext } from './AuthComponent';
 import { motion } from 'framer-motion';
-import Modal from './Modal';
-import MyChatPage from '../@chatty/chatpage/[...id]/page';
-import DashboardLayout from '../dashboard/layout';
 import { collection, updateDoc, query, doc, onSnapshot, orderBy, getDoc, increment, runTransaction, setDoc, addDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import { FaSpinner, FaToggleOff, FaToggleOn } from 'react-icons/fa';
@@ -241,12 +238,11 @@ return(
             },
           }, hidden: { opacity: 0, x:'0'}, }}
     className={`${istoggled? 'hideIn' : 'show'} flex-1 p-4 overflow-auto bg-black border-gray-800 border rounded relative text-white xsm:max-lg:overflow-auto `}>
-          {/* <div className='w-auto'><BallObject ballsize={'50px'} bounce_height={1}/></div> */}
         {selectedUser && <p className={`text-white text-[11px] w-full -mt-8 flex items-center justify-center gap-x-24 p-4 bg-gradient-to-t from-blue-900 via-gray-900 to-gray-600 shadow-md rounded uppercase sticky -top-6 z-20 xsm:max-sm:text-[11px] `}>
         {`${activeuser && activeuser.displayName} connects with ${selectedUser && selectedUser.nickname}`}
         <span onClick={handleToggle}
         className='flex hover:cursor-pointer'>{istoggled ? <FaToggleOff size={25} fill='white'/> : <FaToggleOn size={25} fill='white'/>}</span>
-        {istyping && <p className='text-white rounded flex xsm:max-sm:text-[11px]'>Typing<FaSpinner size={20} fill='white' className='animate-spin'/></p>}
+        {/* {istyping && <p className='text-white rounded flex xsm:max-sm:text-[11px]'>Typing<FaSpinner size={20} fill='white' className='animate-spin'/></p>} */}
       </p>
       
 }
