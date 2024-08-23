@@ -205,7 +205,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
     const paginatedArray = arr && arr.slice(sliceNo*3, (sliceNo+1)*3)
     setOthers(paginatedArray)
     setSelected(sliceNo)
-  }, [others])
+  }, [others, selectedId, filteredUsers, onlineId, isActive])
 
 
   // const paginatedfilteredArray = (arr) => {
@@ -219,7 +219,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
   },[])
 
   return (
-    <div className="p-4 rounded-md bg-gradient-conic from-40%  from-white via-slate-800 to-slate-100 dark:bg-gray-800 h-max min-h-[520px] w-[100%] xsm:max-md:w-full">
+    <div className="p-4 rounded-md bg-gradient-conic from-40%  from-white via-slate-800 to-slate-100 dark:bg-gray-800 h-max min-h-[540px] w-[100%] xsm:max-md:w-full">
       <div className="flex justify-between items-center mb-4">
         {/* <h1 className="styleConnect text-xl font-bold text-gray-700 dark:text-gray-300 uppercase xsm:max-[400px]:hidden">Let's Connect</h1> */}
         {/* <div className='w-auto'><BallObject ballsize={'50px'} bounce_height={10}/></div> */}

@@ -92,7 +92,7 @@ body {
   } 
   
    .show {
-    max-height: 520px;
+    max-height: 540px;
     overflow: auto;
     transition: max-height 1s ease, transform 1s ease;
     /* transform: translateY(-100%); Slide upwards */

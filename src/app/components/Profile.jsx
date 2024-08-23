@@ -168,7 +168,7 @@ const Profile = ({signedInUser, activetab}) => {
       
       
       <div className="flex flex-col items-center w-full lg:w-full mb-6 lg:mb-0 lg:ml-0">
-        <div className="bg-white flex flex-col px-4 rounded-lg shadow-lg w-full">
+        <div className="bg-white py-3 flex flex-col px-4 rounded-lg shadow-lg w-full">
           <div className="flex flex-col items-center w-full">
             {profile.picture ? (
               <img
@@ -199,7 +199,7 @@ const Profile = ({signedInUser, activetab}) => {
       </div>
       
       {/* )} */}
-      <div className="w-full lg:w-full">
+      <div className="w-full  lg:w-full">
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg space-y-4">
           <div className="flex items-center">
             <FaUser className="text-gray-500 mr-2" />
