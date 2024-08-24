@@ -216,7 +216,7 @@ const Connects = ({others, setOthers, setSelectedUser, selectedUser, notify, set
 
   useEffect(()=>{
     setSelected(0)
-  },[])
+  },[selectedId, users, others, filteredUsers])
 
   return (
     <div className="p-4 rounded-md bg-gradient-conic from-40%  from-white via-slate-800 to-slate-100 dark:bg-gray-800 h-max min-h-[540px] w-[100%] xsm:max-md:w-full">
